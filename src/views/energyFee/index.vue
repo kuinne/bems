@@ -3,20 +3,23 @@
     <Tab />
     <div class="tab-content">
       <ChargingSetting v-if="activeKey === 'charingSetting'" />
+      <MeterSetting v-if="activeKey === 'meterSetting'" />
     </div>
   </div>
 </template>
 
 <script setup lang="tsx">
-import { useContainer } from './components/ChargingSetting/hooks/use-container'
+import { useContainer as useCharingSetting } from './components/ChargingSetting/hooks/use-container'
+import { useContainer as useMeterSetting } from './components/MeterSetting/hooks/use-container'
 
 import { useTab } from './hooks/use-tab'
 
-const { TabPaneContent, Container: ChargingSetting } = useContainer()
+const { TabPaneContent: CharingTabContent, Container: ChargingSetting } = useCharingSetting()
+const { TabPaneContent: MeterSettingTabContent, Container: MeterSetting } = useMeterSetting()
 
 const { Tab, activeKey } = useTab({
-  charingSettingRender: () => <TabPaneContent />,
-  meterSettingRender: () => <div>ss</div>,
+  charingSettingRender: () => <CharingTabContent />,
+  meterSettingRender: () => <MeterSettingTabContent />,
 })
 </script>
 
