@@ -20,7 +20,7 @@ const getDefaultFormData = (): CharingSetting => {
 }
 
 export function useAdd({ onSubmit, energyTypeOptions }: UseAddOptions) {
-  const EditDialogSFC = defineAsyncComponent(() => import('../../../../common/components/EditDialog/index.vue'))
+  const EditDialogSFC = defineAsyncComponent(() => import('../../../../common/components/EditDialog/EditDialog.vue'))
 
   type EditDialogProps = InstanceType<typeof EditDialogSFC>['$props']
   const visible = ref(false)

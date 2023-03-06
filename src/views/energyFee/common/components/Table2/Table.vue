@@ -31,7 +31,14 @@ import { DasTable, DasTableColumn, DasButton, DasSpin } from '@/das-fe/ui'
 import type { Props, Emits } from './type'
 import { isUndef } from '../../utils'
 
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  page: () => ({
+    pageSize: 10,
+    curPage: 1,
+  }),
+  data: () => [],
+  selectionRows: () => [],
+})
 
 const emits = defineEmits<Emits>()
 
@@ -107,12 +114,24 @@ const handleCurrentPageChange = (curPage: number) => {
   page.value.curPage = curPage
 }
 
+const clearSelection = () => {
+  tableRef.value?.$table?.clearSelection()
+}
+
 watch(
   () => page.value,
   () => {
-    console.log('zzzz', page.value)
-
     emits('update:page', page.value)
+  },
+  {
+    deep: true,
+  },
+)
+
+watch(
+  () => data.value,
+  () => {
+    selectionRows.value = selectionRows.value.filter((row: any) => !!(data.value || []).find((item) => item.id === row.id))
   },
 )
 
@@ -154,6 +173,10 @@ const handleView = (index: number, row: any) => {
 const handleDelete = (index: number, row: any) => {
   emits('delete', toRaw(row))
 }
+
+defineExpose({
+  clearSelection,
+})
 </script>
 
 <style lang="scss" scoped>

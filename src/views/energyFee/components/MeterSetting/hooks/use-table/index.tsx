@@ -6,7 +6,7 @@ import { i18n } from '@/utils/i18n'
 import { MeterType } from '../../enums'
 
 export function useTable({ onEdit, onDelete, onView, energyBillingSettingId, filterObj }: UseTableOptions<any>) {
-  const TableSFC = defineAsyncComponent(() => import('../../../../common/components/Table/index.vue'))
+  const TableSFC = defineAsyncComponent(() => import('../../../../common/components/Table/Table.vue'))
 
   const tableRef = ref<InstanceType<typeof TableSFC>>()
   type TableProps = InstanceType<typeof TableSFC>['$props']

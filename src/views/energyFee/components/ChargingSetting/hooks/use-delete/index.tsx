@@ -6,7 +6,7 @@ import type { UseDeleteOptions } from './type'
 import { isArray } from '../../../../common/utils'
 
 export function useDelete({ onConfirm }: UseDeleteOptions) {
-  const ConfirmDialogSFC = defineAsyncComponent(() => import('../../../../common/components/ConfirmDialog/index.vue'))
+  const ConfirmDialogSFC = defineAsyncComponent(() => import('../../../../common/components/ConfirmDialog/ConfirmDialog.vue'))
 
   const visible = ref(false)
   const formData = ref<CharingSetting | CharingSetting[]>()

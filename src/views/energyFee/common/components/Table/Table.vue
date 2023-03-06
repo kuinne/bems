@@ -34,6 +34,10 @@ import { isUndef, removeEmptyKey } from '../../utils'
 import deepmerge from 'deepmerge'
 
 const props = withDefaults(defineProps<Props>(), {
+  page: {
+    pageSize: 10,
+    curPage: 1,
+  },
   actions: () => ['view', 'edit', 'delete'],
   autoLoadData: true,
 })

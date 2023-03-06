@@ -1,5 +1,5 @@
 import { defineAsyncComponent, ref, computed, watchEffect } from 'vue'
-import ActionButtons from '../../../ActionButtons/index.vue'
+import ActionButtons from '../../../ActionButtons/ActionButton.vue'
 
 export function useContainer() {
   const ContainerSFC = defineAsyncComponent(() => import('./Container.vue'))

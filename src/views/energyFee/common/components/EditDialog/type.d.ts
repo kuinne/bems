@@ -10,6 +10,7 @@ export type FormItems = {
   getPopupContainer?: any
   render?: () => JSX.Element
   isRight?: boolean
+  options?: { value: any; label: string }[]
 }[]
 
 export type Props = {
@@ -22,7 +23,7 @@ export type Props = {
 
 export type Emits = {
   ($event: 'close'): void
-  ($event: 'submit'): void
+  ($event: 'submit', data: any): void
 }
 
 export type UseEditOptions = {

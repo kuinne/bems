@@ -1,7 +1,7 @@
 <template>
   <div class="page-container">
     <Demo></Demo>
-    <ImportDialog />
+    <!-- <ImportDialog /> -->
   </div>
 </template>
 

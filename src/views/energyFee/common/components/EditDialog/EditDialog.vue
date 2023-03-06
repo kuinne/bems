@@ -90,7 +90,7 @@ const resetForm = () => {
 
 const handleSubmit = () => {
   if (!validate()) return
-  emits('submit')
+  emits('submit', formData.value)
 }
 
 watchEffect(() => {

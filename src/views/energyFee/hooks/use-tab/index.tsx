@@ -3,7 +3,7 @@ import type { UseTabOptionsType } from './type'
 import { i18n } from '@/utils/i18n'
 
 export function useTab({ charingSettingRender, meterSettingRender }: UseTabOptionsType) {
-  const TabSFC = defineAsyncComponent(() => import('../../common/components/Tab/index.vue'))
+  const TabSFC = defineAsyncComponent(() => import('../../common/components/Tab/Tab.vue'))
   type TabProps = InstanceType<typeof TabSFC>['$props']
 
   const options = ref<TabProps['options']>([
