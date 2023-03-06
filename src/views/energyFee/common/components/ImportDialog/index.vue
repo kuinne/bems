@@ -115,8 +115,9 @@ const handleConfirm = () => {
   }
   //
   const options = {
-    bucketName: 'temp',
-    importFileName: `/${tenantId}/energy-manage/${importFileName}`,
+    bucketName: tenantId,
+    // importFileName: `/${tenantId}/energy-manage/${importFileName}`,
+    importFileName: `bems-data-manage/temp/${importFileName}`,
     // importFileName: `/t371677589594182/bems-data-manage/${importFileName}`,
   }
   fileImport(confirmCategoryImportAjax, fileList.value[0], options)

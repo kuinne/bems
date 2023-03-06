@@ -31,9 +31,7 @@ import { DasTable, DasTableColumn, DasButton, DasSpin } from '@/das-fe/ui'
 import type { Props, Emits } from './type'
 import { isUndef } from '../../utils'
 
-const props = withDefaults(defineProps<Props>(), {
-  actions: () => ['view', 'edit', 'delete'],
-})
+const props = defineProps<Props>()
 
 const emits = defineEmits<Emits>()
 
@@ -42,6 +40,8 @@ const css = useCssModule()
 const columns = ref(props.columns)
 
 const data = ref<any[]>(props.data)
+
+const actions = ref(props.actions || ['view', 'edit', 'delete'])
 
 const loading = ref(props.loading)
 const total = ref<number>(props.total)
@@ -78,13 +78,13 @@ const Columns = () => {
       v-slots={{
         default: (scope: any) => (
           <div class={css['action-wrapper']}>
-            <DasButton v-if={props.actions.includes('view')} size="small" btnType="primary-text" block onClick={() => handleView(scope.$index, scope.row)}>
+            <DasButton v-if={actions.value.includes('view')} size="small" btnType="primary-text" block onClick={() => handleView(scope.$index, scope.row)}>
               查看
             </DasButton>
-            <DasButton v-if={props.actions.includes('edit')} size="small" btnType="primary-text" block onClick={() => handleEdit(scope.$index, scope.row)}>
+            <DasButton v-if={actions.value.includes('edit')} size="small" btnType="primary-text" block onClick={() => handleEdit(scope.$index, scope.row)}>
               编辑
             </DasButton>
-            <DasButton v-if={props.actions.includes('delete')} size="small" btnType="primary-text" block onClick={() => handleDelete(scope.$index, scope.row)}>
+            <DasButton v-if={actions.value.includes('delete')} size="small" btnType="primary-text" block onClick={() => handleDelete(scope.$index, scope.row)}>
               删除
             </DasButton>
           </div>
@@ -92,7 +92,7 @@ const Columns = () => {
       }}
     />
   )
-  if (props.actions.length === 0) {
+  if (actions.value.length === 0) {
     return dataColumns
   }
 
@@ -110,6 +110,8 @@ const handleCurrentPageChange = (curPage: number) => {
 watch(
   () => page.value,
   () => {
+    console.log('zzzz', page.value)
+
     emits('update:page', page.value)
   },
 )
@@ -135,6 +137,12 @@ watch(
   },
 )
 
+watch(
+  () => props.loading,
+  () => {
+    loading.value = props.loading
+  },
+)
 // 操作
 
 const handleEdit = (index: number, row: any) => {

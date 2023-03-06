@@ -1,20 +1,13 @@
 <template>
   <div class="page-container">
-    <!-- <Filter v-model="filterObj" /> -->
-    <Filter />
+    <Demo></Demo>
+    <ImportDialog />
   </div>
 </template>
 
 <script setup lang="ts">
-// import Filter from '../energyFee/components/MeterSetting/hooks/use-filter/Filter.vue'
-import { useFilter } from '../energyFee/components/MeterSetting/hooks/use-filter'
-import { ref, watchEffect } from 'vue'
-// const filterObj = ref({
-//   meterType: -1,
-//   search: '',
-// })
-
-const { Filter, filterObj } = useFilter()
+import Demo from '@/views/energyFee/components/MeterSetting/hooks/use-table2/Demo.vue'
+import ImportDialog from './common/components/ImportDialog/index.vue'
 </script>
 
 <style scoped lang="scss">
