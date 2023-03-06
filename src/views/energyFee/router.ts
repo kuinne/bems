@@ -6,7 +6,6 @@ const router: RouteRecordRaw[] = [
     meta: {
       componentName: 'energyFee',
       hiddenBread: true,
-      hiddenLayout: true,
     },
   },
 ]

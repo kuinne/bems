@@ -1,11 +1,11 @@
-import { getSetting } from '@/views/energyFee/apis'
+import { getMeterSettingList } from '@/views/energyFee/apis'
 import { optionsToEnums } from '@/views/energyFee/common/utils'
-import { computed, defineAsyncComponent, ref, Ref } from 'vue'
-import { charingTypeOptions } from '../../constants'
-import type { UseTableOptions } from './type'
+import { computed, defineAsyncComponent, ref, Ref, watch, watchEffect } from 'vue'
+import type { UseTableOptions, FilterObj } from './type'
 import { i18n } from '@/utils/i18n'
+import { MeterType } from '../../enums'
 
-export function useTable({ onEdit, onDelete, onView, energyTypeOptions }: UseTableOptions<any>) {
+export function useTable({ onEdit, onDelete, onView, energyBillingSettingId, filterObj }: UseTableOptions<any>) {
   const TableSFC = defineAsyncComponent(() => import('../../../../common/components/Table/index.vue'))
 
   const tableRef = ref<InstanceType<typeof TableSFC>>()
@@ -23,37 +23,34 @@ export function useTable({ onEdit, onDelete, onView, energyTypeOptions }: UseTab
 
   const columns = computed<TableProps['columns']>(() => [
     {
-      label: i18n('计费标准' as any).value,
-      prop: 'name',
-      contentType: 'link',
-      onClickLink: (row) => {
-        handleView(row)
-      },
+      label: i18n('表计编码' as any).value,
+      prop: 'meterCode',
     },
     {
-      label: i18n('能源分类' as any).value,
-      prop: 'energyTypeId',
-      enums: optionsToEnums(energyTypeOptions.value),
-      render: (scope) => {
-        return <button>{scope.row.energyTypeId}</button>
-      },
+      label: i18n('表计名称' as any).value,
+      prop: 'meterName',
     },
     {
-      label: i18n('计费方式' as any).value,
-      prop: 'billingMethod',
-      enums: optionsToEnums(charingTypeOptions),
+      label: i18n('能源类型' as any).value,
+      prop: 'energyTypeName',
     },
     {
-      label: i18n('备注' as any).value,
-      prop: 'remark',
+      label: i18n('表计类型' as any).value,
+      prop: 'meterTypeName',
+    },
+    {
+      label: i18n('表计状态' as any).value,
+      prop: 'status',
     },
   ])
 
-  const loadData: TableProps['loadData'] = async (params) => {
-    const [error, data] = await getSetting({
+  const loadData: TableProps['loadData'] = async (params: any) => {
+    const [error, data] = await getMeterSettingList({
       pageIndex: params.tablePage?.curPage!,
       pageSize: params.tablePage?.pageSize!,
-      energyTypeId: params.filterObj?.energyTypeId || '-1',
+      energyBillingSettingId: params.filterObj?.energyBillingSettingId,
+      meterType: params.filterObj?.meterType || MeterType.ALL,
+      search: params.filterObj?.search,
     })
 
     return {
@@ -62,13 +59,31 @@ export function useTable({ onEdit, onDelete, onView, energyTypeOptions }: UseTab
     }
   }
 
-  const Table = () => <TableSFC ref={tableRef} columns={columns.value} loadData={loadData} onEdit={handleEdit} onDelete={handleDelete} onView={handleView} />
+  const Table = () => <TableSFC autoLoadData={false} actions={[]} ref={tableRef} columns={columns.value} loadData={loadData} onEdit={handleEdit} onDelete={handleDelete} onView={handleView} />
+
+  const reload = (params?: FilterObj) => {
+    return tableRef.value?.reload(params)
+  }
+
+  watch(
+    () => [energyBillingSettingId.value, tableRef.value],
+    () => {
+      if (energyBillingSettingId.value !== undefined) {
+        reload({
+          filterObj: {
+            energyBillingSettingId: energyBillingSettingId.value,
+          },
+        })
+      }
+    },
+    {
+      immediate: true,
+    },
+  )
 
   return {
     Table,
-    reload: (params?: any) => {
-      return tableRef.value?.reload(params)
-    },
+    reload,
     multipleSection: computed(() => tableRef.value?.multipleSection || []),
   }
 }

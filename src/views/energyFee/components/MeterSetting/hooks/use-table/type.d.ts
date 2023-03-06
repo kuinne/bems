@@ -1,8 +1,13 @@
 import type { Options } from '../../constants'
+import { MeterType } from '../../enums'
 
-export type FilterObjType = Partial<{
-  /** 能源类型Id,-1查询全部 */
-  energyTypeId: string
+export type FilterObj = Partial<{
+  tablePage: any
+  filterObj: Partial<{
+    energyBillingSettingId: string
+    meterType: MeterType
+    search: string
+  }>
 }>
 
 export type UseTableOptions<T> = {
@@ -10,6 +15,8 @@ export type UseTableOptions<T> = {
   onDelete?: (row: T) => void
   onView?: (row: T) => void
   energyTypeOptions: Ref<Options<any>>
+  energyBillingSettingId: Ref<number | undefined>
+  filterObj: Ref<any>
 
   slots?: Partial<{
     default: () => any

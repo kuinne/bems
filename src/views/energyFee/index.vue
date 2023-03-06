@@ -1,26 +1,20 @@
 <template>
   <div class="page-container">
-    <Tab />
-    <div class="tab-content">
-      <ChargingSetting v-if="activeKey === 'charingSetting'" />
-      <MeterSetting v-if="activeKey === 'meterSetting'" />
-    </div>
+    <!-- <Filter v-model="filterObj" /> -->
+    <Filter />
   </div>
 </template>
 
-<script setup lang="tsx">
-import { useContainer as useCharingSetting } from './components/ChargingSetting/hooks/use-container'
-import { useContainer as useMeterSetting } from './components/MeterSetting/hooks/use-container'
+<script setup lang="ts">
+// import Filter from '../energyFee/components/MeterSetting/hooks/use-filter/Filter.vue'
+import { useFilter } from '../energyFee/components/MeterSetting/hooks/use-filter'
+import { ref, watchEffect } from 'vue'
+// const filterObj = ref({
+//   meterType: -1,
+//   search: '',
+// })
 
-import { useTab } from './hooks/use-tab'
-
-const { TabPaneContent: CharingTabContent, Container: ChargingSetting } = useCharingSetting()
-const { TabPaneContent: MeterSettingTabContent, Container: MeterSetting } = useMeterSetting()
-
-const { Tab, activeKey } = useTab({
-  charingSettingRender: () => <CharingTabContent />,
-  meterSettingRender: () => <MeterSettingTabContent />,
-})
+const { Filter, filterObj } = useFilter()
 </script>
 
 <style scoped lang="scss">
@@ -30,6 +24,7 @@ const { Tab, activeKey } = useTab({
   height: 100%;
   padding: 10px;
   box-sizing: border-box;
+  background-color: #fff;
   .tab-content {
     flex: 1;
     margin-top: 10px;

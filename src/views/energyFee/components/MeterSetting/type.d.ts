@@ -1,29 +1,23 @@
 import { BillingMethod } from './enums'
 
-/** 分时单价集合 */
-export interface UnitPriceDtos {
-  /** 开始时间 */
-  startTime: string
-  /** 结束时间 */
-  endTime: string
-  /** 单价 */
-  price: string
-  /** 备注 */
-  remark: string
-}
-
-/** 计费设置 */
-export interface CharingSetting {
+/** 表计设置 */
+export interface MeterSetting {
   id?: string
-  /** 计费标准名称 */
-  name: string
-  /** 能源分类 */
+  /** 表计名称 */
+  meterName: string
+  /** 表计编码 */
+  meterCode: string
+  /** 能源分类id */
   energyTypeId: string
-  /** 计费方式 */
-  billingMethod: BillingMethod
-  /** 单价(仅在计费方式为固定单价时有值) */
-  unitPriceDtos?: UnitPriceDtos[]
-  unitPrice?: string
-  /** 备注 */
-  remark?: string
+  /** 能源分类名称 */
+  energyTypeName: string
+
+  /** 表计类型 */
+  meterType: string
+  /** 表计类型名称 */
+  meterTypeName: string
+  /** 表计状态 */
+  status: string
+
+  isEnable: boolean
 }

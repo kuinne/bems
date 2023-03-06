@@ -4,7 +4,10 @@
       <Tree />
     </template>
     <template #main>
-      <Table />
+      <div class="main-container">
+        <Filter />
+        <Table />
+      </div>
     </template>
   </Layout>
   <Add />
@@ -12,25 +15,16 @@
   <Delete />
 </template>
 
-<script setup lang="tsx">
+<script setup lang="ts">
 import { useTree } from '../use-tree'
 import { useTable } from '../use-table'
 import { useDelete } from '../use-delete'
 import { useAdd } from '../use-add'
+import { useFilter } from '../use-filter'
 import Layout from '../../../Layout/index.vue'
 import { toRaw } from 'vue'
 
-const { Tree, energyTypeOptions } = useTree({
-  onSearch: (keys: string[]) => {
-    console.log('keys', keys)
-
-    // reload({
-    //   filterObj: {
-    //     energyTypeId: node.id,
-    //   },
-    // })
-  },
-})
+const { Tree, energyTypeOptions, energyBillingSettingId } = useTree()
 
 const { Add, open } = useAdd({
   energyTypeOptions,
@@ -45,12 +39,14 @@ const { Delete, open: openDelete } = useDelete({
   },
 })
 
+const { Filter, filterObj } = useFilter()
+
 const { Table, reload, multipleSection } = useTable({
-  slots: {
-    // header: () => <Filter />,
-  },
+  // slots: {},
+  filterObj,
   energyTypeOptions,
   onDelete: openDelete,
+  energyBillingSettingId,
   onEdit: (formData: any) => open('edit', formData),
   onView: (formData: any) => open('view', formData),
 })
@@ -63,4 +59,9 @@ defineExpose({
 })
 </script>
 
-<style></style>
+<style scoped lang="scss">
+.main-container {
+  height: 100%;
+  background: #fff;
+}
+</style>

@@ -1,4 +1,4 @@
-import { BillingMethod } from './enums'
+import { MeterType } from './enums'
 
 export type Options<K, V = string> = Array<{
   value: K
@@ -6,7 +6,10 @@ export type Options<K, V = string> = Array<{
   disabled?: boolean
 }>
 
-export const charingTypeOptions: Options<BillingMethod> = [
-  { value: BillingMethod.Fixed, label: '固定单价' },
-  { value: BillingMethod.Time, label: '分时单价' },
+export const meterTypeOptions: Options<MeterType> = [
+  { value: MeterType.ALL, label: '全部' },
+  { value: MeterType.Entity, label: '实体表计' },
+  { value: MeterType.Virtual, label: '虚拟表计' },
 ]
+
+export const charingTypeOptions = []

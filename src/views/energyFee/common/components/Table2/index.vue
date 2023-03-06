@@ -10,13 +10,13 @@
           max-height="100%"
           selection
           hideSelectionText
-          :data="tableData"
-          v-model:current-page="tablePage.curPage"
-          v-model:page-size="tablePage.pageSize"
-          :total="tablePage.total"
+          :data="data"
+          v-model:current-page="page.curPage"
+          v-model:page-size="page.pageSize"
+          :total="total"
           @size-change="handlePageSizeChange"
           @current-page-change="handleCurrentPageChange"
-          v-model:selection-rows="multipleSection"
+          v-model:selection-rows="selectionRows"
         >
           <Columns />
         </das-table>
@@ -26,32 +26,32 @@
 </template>
 
 <script setup lang="tsx">
-import { computed, onMounted, ref, toRaw, useCssModule, watchEffect } from 'vue'
+import { computed, onMounted, ref, toRaw, useCssModule, watch } from 'vue'
 import { DasTable, DasTableColumn, DasButton, DasSpin } from '@/das-fe/ui'
 import type { Props, Emits } from './type'
-import type { TablePageType, InitDataParamsType } from './type'
-import { isUndef, removeEmptyKey } from '../../utils'
-import deepmerge from 'deepmerge'
+import { isUndef } from '../../utils'
 
 const props = withDefaults(defineProps<Props>(), {
   actions: () => ['view', 'edit', 'delete'],
-  autoLoadData: true,
 })
 
 const emits = defineEmits<Emits>()
 
 const css = useCssModule()
 
-const tableData = ref<any[]>()
+const columns = ref(props.columns)
 
-const loading = ref(false)
+const data = ref<any[]>(props.data)
 
-const filterObj = ref<NonNullable<InitDataParamsType['filterObj']>>({})
+const loading = ref(props.loading)
+const total = ref<number>(props.total)
+// 分页
+const page = ref(props.page)
 
 const tableRef = ref<InstanceType<typeof DasTable>>()
 
 // 多选
-const multipleSection = ref<any[]>([])
+const selectionRows = ref<any[]>(props.selectionRows)
 
 const formatColumns = (columns: Props['columns']) => {
   return columns.map((column) => {
@@ -99,66 +99,41 @@ const Columns = () => {
   return [...dataColumns, actionColumn]
 }
 
-const mergeParams = (params?: InitDataParamsType) => {
-  const innerParams = removeEmptyKey({
-    tablePage: tablePage.value,
-    filterObj: filterObj.value,
-  })
-  const outerParams = removeEmptyKey({
-    tablePage: params?.tablePage,
-    filterObj: params?.filterObj,
-  })
-  const mergedParams = deepmerge.all<InitDataParamsType>([innerParams, outerParams])
-
-  if (mergedParams.tablePage?.curPage) {
-    tablePage.value.curPage = mergedParams.tablePage?.curPage
-  }
-
-  if (mergedParams.tablePage?.pageSize) {
-    tablePage.value.pageSize = mergedParams.tablePage?.pageSize
-  }
-  return mergedParams
-}
-
-const loadData = async (params?: InitDataParamsType) => {
-  const mergedParams = mergeParams(params)
-
-  loading.value = true
-  try {
-    const { total, data } = await props.loadData(mergedParams)
-    tableData.value = data
-    tablePage.value.total = total
-    mergedParams.filterObj && (filterObj.value = mergedParams.filterObj)
-  } catch (error) {
-  } finally {
-    loading.value = false
-  }
-}
-
-// 分页
-const tablePage = ref<TablePageType>({
-  curPage: 1,
-  total: 0,
-  pageSize: 10,
-})
-
 const handlePageSizeChange = (pageSize: number) => {
-  loadData({
-    tablePage: {
-      ...tablePage.value,
-      pageSize,
-    },
-  })
+  page.value.pageSize = pageSize
 }
 
 const handleCurrentPageChange = (curPage: number) => {
-  loadData({
-    tablePage: {
-      ...tablePage.value,
-      curPage,
-    },
-  })
+  page.value.curPage = curPage
 }
+
+watch(
+  () => page.value,
+  () => {
+    emits('update:page', page.value)
+  },
+)
+
+watch(
+  () => selectionRows.value,
+  () => {
+    emits('update:selectionRows', selectionRows.value)
+  },
+)
+
+watch(
+  () => props.data,
+  () => {
+    data.value = props.data
+  },
+)
+
+watch(
+  () => props.total,
+  () => {
+    total.value = props.total
+  },
+)
 
 // 操作
 
@@ -171,19 +146,6 @@ const handleView = (index: number, row: any) => {
 const handleDelete = (index: number, row: any) => {
   emits('delete', toRaw(row))
 }
-
-onMounted(() => {
-  if (props.autoLoadData) {
-    loadData()
-  }
-})
-
-defineExpose({
-  reload: (params?: InitDataParamsType) => loadData(params),
-  multipleSection,
-  tablePage,
-  tableData,
-})
 </script>
 
 <style lang="scss" scoped>

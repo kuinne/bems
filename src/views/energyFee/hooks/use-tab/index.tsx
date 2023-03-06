@@ -18,7 +18,7 @@ export function useTab({ charingSettingRender, meterSettingRender }: UseTabOptio
       render: meterSettingRender,
     },
   ])
-  const activeKey = ref<string>(options.value[0].key)
+  const activeKey = ref<string>(options.value[1].key)
 
   const Tab = () => <TabSFC v-model:activeKey={activeKey.value} options={options.value}></TabSFC>
   return {
