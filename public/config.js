@@ -1,5 +1,1 @@
-/** @type {import('../src/types/config').Config} */
-window.config = {
-  title: 'bems',
-  microAppName: 'enterpriseadmin/bems',
-}
+window.config = {"title":"bems","microAppName":"enterpriseadmin/bems","mainAppName":""}

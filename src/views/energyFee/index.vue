@@ -1,24 +1,29 @@
 <template>
   <div class="page-container">
-    <Demo></Demo>
+    <Tab />
+    <MeterSetting v-if="activeKey === 'meterSetting'" />
+    <CharingSetting v-if="activeKey === 'charingSetting'" />
   </div>
 </template>
 
 <script setup lang="ts">
-import Demo from '@/views/energyFee/components/MeterSetting/hooks/use-table2/Demo.vue'
+import { useTab } from './hooks/use-tab/index.tsx'
+import { useContainer } from './meterSetting/use-container/index.tsx'
+import { useContainer as useCharingSetting } from './charingSetting/use-container/index.tsx'
+
+const { Container: MeterSetting, tabRender } = useContainer()
+const { Container: CharingSetting, tabRender: tabRender2 } = useCharingSetting()
+const { Tab, activeKey } = useTab({
+  chargingSettingRender: tabRender2,
+  meterSettingRender: tabRender,
+})
 </script>
 
 <style scoped lang="scss">
 .page-container {
+  width: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
-  height: 100%;
-  padding: 10px;
-  box-sizing: border-box;
-  background-color: #fff;
-  .tab-content {
-    flex: 1;
-    margin-top: 10px;
-  }
 }
 </style>

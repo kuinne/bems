@@ -10,15 +10,19 @@
           max-height="100%"
           selection
           hideSelectionText
-          :data="tableData"
-          v-model:current-page="tablePage.curPage"
-          v-model:page-size="tablePage.pageSize"
-          :total="tablePage.total"
+          :data="data"
+          v-model:current-page="page.curPage"
+          v-model:page-size="page.pageSize"
+          :total="total"
           @size-change="handlePageSizeChange"
           @current-page-change="handleCurrentPageChange"
-          v-model:selection-rows="multipleSection"
+          v-model:selection-rows="selectionRows"
+          v-bind="props.dasTableProps || {}"
         >
           <Columns />
+          <template #pagination-left>
+            <slot name="pagination-left"></slot>
+          </template>
         </das-table>
       </das-spin>
     </div>
@@ -26,36 +30,37 @@
 </template>
 
 <script setup lang="tsx">
-import { computed, onMounted, ref, toRaw, useCssModule, watchEffect } from 'vue'
+import { computed, onMounted, ref, toRaw, useCssModule, watch } from 'vue'
 import { DasTable, DasTableColumn, DasButton, DasSpin } from '@/das-fe/ui'
 import type { Props, Emits } from './type'
-import type { TablePageType, InitDataParamsType } from './type'
-import { isUndef, removeEmptyKey } from '../../utils'
-import deepmerge from 'deepmerge'
+import { isUndef } from '../../utils'
 
-const props = withDefaults(defineProps<Props>(), {
-  page: {
-    pageSize: 10,
-    curPage: 1,
-  },
-  actions: () => ['view', 'edit', 'delete'],
-  autoLoadData: true,
-})
-
+// const props = withDefaults(defineProps<Props>(), {
+//   page: () => ({
+//     pageSize: 10,
+//     curPage: 1,
+//   }),
+//   data: () => [],
+//   selectionRows: () => [],
+// })
+const props = defineProps<Props>()
 const emits = defineEmits<Emits>()
 
 const css = useCssModule()
 
-const tableData = ref<any[]>()
+const data = ref<any[]>(props.data)
 
-const loading = ref(false)
+const actions = ref(props.actions || ['view', 'edit', 'delete'])
 
-const filterObj = ref<NonNullable<InitDataParamsType['filterObj']>>({})
+const loading = ref(props.loading)
+const total = ref<number>(props.total)
+// 分页
+const page = ref(props.page)
 
 const tableRef = ref<InstanceType<typeof DasTable>>()
 
 // 多选
-const multipleSection = ref<any[]>([])
+const selectionRows = ref<any[]>(props.selectionRows)
 
 const formatColumns = (columns: Props['columns']) => {
   return columns.map((column) => {
@@ -82,88 +87,96 @@ const Columns = () => {
       v-slots={{
         default: (scope: any) => (
           <div class={css['action-wrapper']}>
-            <DasButton v-if={props.actions.includes('view')} size="small" btnType="primary-text" block onClick={() => handleView(scope.$index, scope.row)}>
-              查看
-            </DasButton>
-            <DasButton v-if={props.actions.includes('edit')} size="small" btnType="primary-text" block onClick={() => handleEdit(scope.$index, scope.row)}>
-              编辑
-            </DasButton>
-            <DasButton v-if={props.actions.includes('delete')} size="small" btnType="primary-text" block onClick={() => handleDelete(scope.$index, scope.row)}>
-              删除
-            </DasButton>
+            {actions.value.includes('view') && (
+              <DasButton size="small" btnType="primary-text" block onClick={() => handleView(scope.$index, scope.row)}>
+                查看
+              </DasButton>
+            )}
+            {actions.value.includes('edit') && (
+              <DasButton size="small" btnType="primary-text" block onClick={() => handleEdit(scope.$index, scope.row)}>
+                编辑
+              </DasButton>
+            )}
+            {actions.value.includes('delete') && (
+              <DasButton size="small" btnType="primary-text" block onClick={() => handleDelete(scope.$index, scope.row)}>
+                删除
+              </DasButton>
+            )}
           </div>
         ),
       }}
     />
   )
-  if (props.actions.length === 0) {
+  if (actions.value.length === 0) {
     return dataColumns
   }
 
   return [...dataColumns, actionColumn]
 }
 
-const mergeParams = (params?: InitDataParamsType) => {
-  const innerParams = removeEmptyKey({
-    tablePage: tablePage.value,
-    filterObj: filterObj.value,
-  })
-  const outerParams = removeEmptyKey({
-    tablePage: params?.tablePage,
-    filterObj: params?.filterObj,
-  })
-  const mergedParams = deepmerge.all<InitDataParamsType>([innerParams, outerParams])
-
-  if (mergedParams.tablePage?.curPage) {
-    tablePage.value.curPage = mergedParams.tablePage?.curPage
-  }
-
-  if (mergedParams.tablePage?.pageSize) {
-    tablePage.value.pageSize = mergedParams.tablePage?.pageSize
-  }
-  return mergedParams
-}
-
-const loadData = async (params?: InitDataParamsType) => {
-  const mergedParams = mergeParams(params)
-
-  loading.value = true
-  try {
-    const { total, data } = await props.loadData(mergedParams)
-    tableData.value = data
-    tablePage.value.total = total
-    mergedParams.filterObj && (filterObj.value = mergedParams.filterObj)
-  } catch (error) {
-  } finally {
-    loading.value = false
-  }
-}
-
-// 分页
-const tablePage = ref<TablePageType>({
-  curPage: 1,
-  total: 0,
-  pageSize: 10,
-})
-
 const handlePageSizeChange = (pageSize: number) => {
-  loadData({
-    tablePage: {
-      ...tablePage.value,
-      pageSize,
-    },
-  })
+  page.value.pageSize = pageSize
 }
 
 const handleCurrentPageChange = (curPage: number) => {
-  loadData({
-    tablePage: {
-      ...tablePage.value,
-      curPage,
-    },
-  })
+  page.value.curPage = curPage
 }
 
+const clearSelection = () => {
+  tableRef.value?.$table?.clearSelection()
+}
+
+watch(
+  () => page.value,
+  () => {
+    emits('update:page', page.value)
+  },
+  {
+    deep: true,
+  },
+)
+
+watch(
+  () => data.value,
+  () => {
+    selectionRows.value = selectionRows.value.filter((row: any) => !!(data.value || []).find((item) => item.id === row.id))
+  },
+)
+
+watch(
+  () => selectionRows.value,
+  () => {
+    emits('update:selectionRows', selectionRows.value)
+  },
+)
+
+watch(
+  () => props.data,
+  () => {
+    data.value = props.data
+  },
+)
+
+watch(
+  () => props.total,
+  () => {
+    total.value = props.total
+  },
+)
+
+watch(
+  () => props.loading,
+  () => {
+    loading.value = props.loading
+  },
+)
+
+watch(
+  () => props.selectionRows,
+  () => {
+    selectionRows.value = props.selectionRows
+  },
+)
 // 操作
 
 const handleEdit = (index: number, row: any) => {
@@ -176,17 +189,8 @@ const handleDelete = (index: number, row: any) => {
   emits('delete', toRaw(row))
 }
 
-onMounted(() => {
-  if (props.autoLoadData) {
-    loadData()
-  }
-})
-
 defineExpose({
-  reload: (params?: InitDataParamsType) => loadData(params),
-  multipleSection,
-  tablePage,
-  tableData,
+  clearSelection,
 })
 </script>
 

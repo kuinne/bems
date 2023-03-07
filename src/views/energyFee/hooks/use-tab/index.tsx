@@ -1,28 +1,25 @@
-import { defineAsyncComponent, ref, watchEffect } from 'vue'
-import type { UseTabOptionsType } from './type'
-import { i18n } from '@/utils/i18n'
-
-export function useTab({ charingSettingRender, meterSettingRender }: UseTabOptionsType) {
-  const TabSFC = defineAsyncComponent(() => import('../../common/components/Tab/Tab.vue'))
-  type TabProps = InstanceType<typeof TabSFC>['$props']
-
+import { Tab } from '@/views/energyFee/common/components/Tab'
+import type { TabProps } from '@/views/energyFee/common/components/Tab'
+import { ref } from 'vue'
+export function useTab({ chargingSettingRender, meterSettingRender }: { chargingSettingRender: () => JSX.Element; meterSettingRender: () => JSX.Element }) {
   const options = ref<TabProps['options']>([
     {
       key: 'charingSetting',
-      tab: i18n('计费设置' as any).value,
-      render: charingSettingRender,
+      tab: '计费设置',
+      render: chargingSettingRender,
     },
     {
       key: 'meterSetting',
-      tab: i18n('表计设置' as any).value,
+      tab: '表计设置',
       render: meterSettingRender,
     },
   ])
-  const activeKey = ref<string>(options.value[1].key)
 
-  const Tab = () => <TabSFC v-model:activeKey={activeKey.value} options={options.value}></TabSFC>
+  const activeKey = ref<TabProps['activeKey']>(options.value[0].key)
+  const render = () => <Tab options={options.value} v-model:activeKey={activeKey.value}></Tab>
+
   return {
-    Tab,
+    Tab: render,
     activeKey,
   }
 }
