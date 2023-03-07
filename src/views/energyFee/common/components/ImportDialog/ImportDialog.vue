@@ -1,6 +1,14 @@
 <template>
   <!-- 导入弹窗 -->
-  <das-dialog :title="i18n('导入' as any).value" v-model="visible" customClass="deviceManage-import-dialog" size="small" :close-on-click-modal="false" :close-on-press-escape="false">
+  <das-dialog
+    :title="i18n('导入' as any).value"
+    v-model="visible"
+    customClass="deviceManage-import-dialog"
+    size="small"
+    :close-on-click-modal="false"
+    :close-on-press-escape="false"
+    @close="handleClose"
+  >
     <div class="import-container">
       <div class="tip-box">
         <div class="first-line">
@@ -35,12 +43,25 @@
 import { DasButton, DasDialog, DasUpload, DasProgress, DasMessage } from '@/das-fe/ui'
 import { useFile } from '@/utils/api-services'
 import { i18n } from '@/utils/i18n'
-import { downloadMeterSettingImportTemplate, importMeterSetting } from '@/views/energyFee/apis'
-import { ref, reactive } from 'vue'
-import { exportExcel } from '../../utils'
-import { nanoid } from 'nanoid'
+import { ref, reactive, watch, defineEmits, defineProps } from 'vue'
 import { getUserInfo } from '@/utils/common-info/index'
-const visible = ref(true)
+
+const props = defineProps<{ visible: boolean; confirmImportAjax: any; downloadTemplate: any }>()
+const emits = defineEmits<{
+  ($event: 'close'): void
+}>()
+const visible = ref(props.visible)
+
+watch(
+  () => props.visible,
+  () => {
+    visible.value = props.visible
+  },
+)
+
+const handleClose = () => {
+  emits('close')
+}
 
 type DasProgressProps = InstanceType<typeof DasProgress>['$props']
 
@@ -60,35 +81,19 @@ const progressState = ref<{
 
 const fileList = ref([])
 const handleDownload = async () => {
-  const filename = '计表导入模板' + '.xlsx'
-  const [error, data] = await downloadMeterSettingImportTemplate({
-    taskId: new Date().getTime() + '',
-  })
-  if (error) {
-    return
+  // exportExcel(data.data, filename)
+  const res = await props.downloadTemplate()
+  if (res) {
+    const { taskId, filename } = res
+    checkProgress(taskId, 'export', filename)
   }
-  exportExcel(data.data, filename)
 }
 
 const handleErrorFileDownload = () => {}
 
 // 导入
-const {
-  showProgressDialog,
-  progressTitle,
-  percent,
-  progressStatus,
-  progressLoading,
-  errorFileName,
-  errorFileSize,
-  errorMessage,
-  errorImport,
-  errorFilePath,
-  fileImport,
-  generateUniqueName,
-  fileExport,
-  resetStataus,
-} = useFile()
+const { showProgressDialog, progressTitle, percent, progressStatus, progressLoading, errorFileName, errorFileSize, errorMessage, errorImport, fileImport, generateUniqueName, checkProgress } =
+  useFile()
 
 let importFileName: string = ''
 const handleFileUpload = (file: any) => {
@@ -96,7 +101,9 @@ const handleFileUpload = (file: any) => {
   importFileName = generateUniqueName(file.name)
 }
 
-const handleCancel = () => {}
+const handleCancel = () => {
+  emits('close')
+}
 
 // 租户id
 let tenantId: any = getUserInfo()?.tenantId || 't371677589594182'
@@ -116,26 +123,9 @@ const handleConfirm = () => {
   //
   const options = {
     bucketName: tenantId,
-    // importFileName: `/${tenantId}/energy-manage/${importFileName}`,
     importFileName: `bems-data-manage/temp/${importFileName}`,
-    // importFileName: `/t371677589594182/bems-data-manage/${importFileName}`,
   }
-  fileImport(confirmCategoryImportAjax, fileList.value[0], options)
-}
-
-// 产品列表--确定导入请求
-const confirmCategoryImportAjax = async () => {
-  const taskId = nanoid()
-  const params = {
-    fileName: importFileName,
-    taskId,
-    energyBillingSettingId: '1078682899801620480',
-  }
-  const [error, data] = await importMeterSetting(params)
-  if (error) {
-    return { status: false }
-  }
-  return { status: true, taskId }
+  fileImport(props.confirmImportAjax(importFileName), fileList.value[0], options)
 }
 </script>
 <style lang="scss">

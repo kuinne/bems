@@ -12,8 +12,8 @@
     @close="handleClose"
   >
     <template #feedbackImg>
-      <img class="tips-img" src="../../images/del-tips.png" alt="" v-if="type === 'primary'" />
-      <img class="tips-img" src="../../images/warning-tips.png" alt="" v-if="type === 'warning'" />
+      <img class="tips-img" src="../../../images/del-tips.png" alt="" v-if="type === 'primary'" />
+      <img class="tips-img" src="../../../images/warning-tips.png" alt="" v-if="type === 'warning'" />
     </template>
     <div class="tips-content" v-html="content"></div>
     <template #footer>

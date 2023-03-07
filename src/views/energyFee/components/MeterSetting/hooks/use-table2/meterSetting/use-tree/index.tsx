@@ -1,5 +1,6 @@
 import { DasTree } from '@/das-fe/ui'
 import { ref, watchEffect } from 'vue'
+import { getMeterSettingTree } from '@/views/energyFee/apis'
 const mockData = [
   {
     id: '1',
@@ -30,7 +31,7 @@ export function useTree() {
   const currentNodeKey = ref<string>('')
   const fetchData = async () => {
     loading.value = true
-    const [error, res] = await getTree()
+    const [error, res] = await getMeterSettingTree()
     if (!error) {
       data.value = res
       currentNodeKey.value = res[0].id

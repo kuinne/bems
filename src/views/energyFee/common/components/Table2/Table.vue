@@ -17,8 +17,12 @@
           @size-change="handlePageSizeChange"
           @current-page-change="handleCurrentPageChange"
           v-model:selection-rows="selectionRows"
+          v-bind="props.dasTableProps || {}"
         >
           <Columns />
+          <template #pagination-left>
+            <slot name="pagination-left"></slot>
+          </template>
         </das-table>
       </das-spin>
     </div>
@@ -160,6 +164,13 @@ watch(
   () => props.loading,
   () => {
     loading.value = props.loading
+  },
+)
+
+watch(
+  () => props.selectionRows,
+  () => {
+    selectionRows.value = props.selectionRows
   },
 )
 // 操作

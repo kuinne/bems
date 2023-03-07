@@ -12,7 +12,7 @@
 <script setup lang="tsx">
 import { useContainer as useCharingSetting } from './components/ChargingSetting/hooks/use-container'
 import { useContainer as useMeterSetting } from './components/MeterSetting/hooks/use-container'
-import ImportDialog from './common/components/ImportDialog/index.vue'
+import ImportDialog from './common/components/ImportDialog/ImportDialog.vue'
 
 import { useTab } from './hooks/use-tab'
 

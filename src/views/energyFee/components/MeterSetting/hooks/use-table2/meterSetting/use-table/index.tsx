@@ -2,6 +2,8 @@ import { ref, watch, Ref, toRaw, watchEffect } from 'vue'
 
 import { Table } from '@/views/energyFee/common/components/Table2'
 import type { TableProps } from '@/views/energyFee/common/components/Table2'
+import { i18n } from '@/utils/i18n'
+import { getMeterSettingList } from '@/views/energyFee/apis'
 const mockData = [
   {
     id: '1',
@@ -48,20 +50,24 @@ export function useTable(options: { filterObj: Ref<any>; onEdit: (row: any) => P
   const tableRef = ref<InstanceType<typeof Table>>()
   const columns = ref<TableProps['columns']>([
     {
-      prop: 'name',
-      label: '姓名',
+      label: i18n('表计编码' as any).value,
+      prop: 'meterCode',
     },
     {
-      prop: 'age',
-      label: '年龄',
+      label: i18n('表计名称' as any).value,
+      prop: 'meterName',
     },
     {
+      label: i18n('能源类型' as any).value,
+      prop: 'energyTypeName',
+    },
+    {
+      label: i18n('表计类型' as any).value,
+      prop: 'meterTypeName',
+    },
+    {
+      label: i18n('表计状态' as any).value,
       prop: 'status',
-      label: '状态',
-      enums: {
-        1: '成功',
-        2: '失败',
-      },
     },
   ])
   const data = ref<TableProps['data']>([])
@@ -84,7 +90,7 @@ export function useTable(options: { filterObj: Ref<any>; onEdit: (row: any) => P
       ...page.value,
       ...filterObj.value,
     }
-    const [error, res] = await getList(params)
+    const [error, res] = await getMeterSettingList(params)
 
     if (!error) {
       data.value = res.data
@@ -119,8 +125,6 @@ export function useTable(options: { filterObj: Ref<any>; onEdit: (row: any) => P
       fetchData()
     }
   }
-
-  fetchData()
 
   watch(
     () => options.filterObj.value,

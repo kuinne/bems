@@ -1,17 +1,17 @@
 import { Tab } from '@/views/energyFee/common/components/Tab'
 import type { TabProps } from '@/views/energyFee/common/components/Tab'
 import { ref } from 'vue'
-export function useTab({ userSettingRender, productSettingRender }: { userSettingRender: () => JSX.Element; productSettingRender: () => JSX.Element }) {
+export function useTab({ chargingSettingRender, meterSettingRender }: { chargingSettingRender: () => JSX.Element; meterSettingRender: () => JSX.Element }) {
   const options = ref<TabProps['options']>([
     {
-      key: 'userSetting',
-      tab: '用户设置',
-      render: userSettingRender,
+      key: 'charingSetting',
+      tab: '计费设置',
+      render: chargingSettingRender,
     },
     {
-      key: 'productSetting',
-      tab: '产品设置',
-      render: productSettingRender,
+      key: 'meterSetting',
+      tab: '表计设置',
+      render: meterSettingRender,
     },
   ])
 

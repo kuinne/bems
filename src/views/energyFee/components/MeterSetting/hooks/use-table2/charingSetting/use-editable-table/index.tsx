@@ -1,5 +1,7 @@
-import { defineAsyncComponent, ref, Ref } from 'vue'
+import { EditableTable } from '@/views/energyFee/common/components/EditableTable'
+import type { EditableTableProps } from '@/views/energyFee/common/components/EditableTable'
 import { i18n } from '@/utils/i18n'
+import { Ref, ref } from 'vue'
 
 /** 分时 */
 export const timePeriodOptions: any = (function () {
@@ -20,10 +22,6 @@ export const timePeriodOptions: any = (function () {
 })()
 
 export function useEditableTable({ formData, isView }: { formData: Ref<any>; isView: Ref<boolean> }) {
-  const EditableTableSFC = defineAsyncComponent(() => import('../../../../common/components/EditableTable/EditableTable.vue'))
-
-  type EditableTableProps = InstanceType<typeof EditableTableSFC>['$props']
-
   const columns: EditableTableProps['columns'] = [
     {
       label: i18n('开始时间' as any).value,
@@ -86,7 +84,7 @@ export function useEditableTable({ formData, isView }: { formData: Ref<any>; isV
       prop: 'mark',
     },
   ]
-  const editableTableRef = ref<InstanceType<typeof EditableTableSFC>>()
+  const editableTableRef = ref<InstanceType<typeof EditableTable>>()
 
   const defaultData = {
     startTime: '',
@@ -95,10 +93,10 @@ export function useEditableTable({ formData, isView }: { formData: Ref<any>; isV
     mark: '',
   }
 
-  const EditableTable = () => <EditableTableSFC ref={editableTableRef} v-model={formData.value.unitPriceDtos} isView={isView.value} columns={columns} defaultData={defaultData} />
+  const render = () => <EditableTable ref={editableTableRef} v-model={formData.value.unitPriceDtos} isView={isView.value} columns={columns} defaultData={defaultData} />
 
   return {
-    EditableTable,
+    EditableTable: render,
     validator: () => {
       const flag = editableTableRef.value?.validate()
 

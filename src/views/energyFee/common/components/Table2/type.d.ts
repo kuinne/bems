@@ -34,6 +34,7 @@ export type Props = {
   total: number
   loading: boolean
   actions?: TableAction[]
+  dasTableProps?: any
 }
 
 export type TablePageType = {

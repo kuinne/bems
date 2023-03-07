@@ -16,6 +16,7 @@ export function useContainer() {
     },
     {
       label: '导入',
+      onClick: containerRef.value?.openImport,
     },
     {
       label: '导出',
