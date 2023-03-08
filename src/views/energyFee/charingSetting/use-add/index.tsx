@@ -7,6 +7,7 @@ import { createSetting, updateSetting } from '@/views/energyFee/apis'
 import { ref, computed, Ref } from 'vue'
 import { Edit } from '@/views/energyFee/common/components/EditDialog'
 import { pendingDecorator } from '@/views/energyFee/common/utils'
+import { EditableTable } from '@/views/energyFee/common/components/EditableTable'
 
 const DECIMAL_REG = /^[0-9]{1,10}(\.[0-9]{1,10})?$/
 
@@ -27,7 +28,7 @@ export function useAdd({ energyTypeOptions }: { energyTypeOptions: Ref<any> }) {
           prop: 'unitPriceDtos',
           col: 4,
           type: 'custom',
-          render: () => <div>fsdfsdf</div>,
+          render: EditableTable,
           validator: () => 'fsdfdsfdsfsdf',
         }
       }

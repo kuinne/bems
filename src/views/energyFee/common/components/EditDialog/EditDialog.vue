@@ -150,9 +150,13 @@ const formItems = computed<any[]>(() => {
       _item = item(formData.value)
     }
     const validator = _item.validator
+    const render = _item.render
     let res: any = JSON.parse(JSON.stringify(_item))
     if (validator) {
       res.validator = validator
+    }
+    if (render) {
+      res.render = render
     }
     if (_item.type === 'custom') {
       res.validator = editableValidator
