@@ -3,8 +3,7 @@
     <div ref="$myDialogBody">
       <das-form :cols="4" marginRight="50px" labelPosition="top" alignType="horizontal">
         <das-form-item v-for="item in formItems" :key="item.prop" v-bind="item" v-model="formData[item.prop]" v-model:error="validateErrors[item.prop]" :class="{ ['form-item-right']: item.isRight }">
-          <!-- <Render v-if="item.render" :render="item.render" v-model="formData[item.prop]"></Render> -->
-          <EditableTable v-if="item.type === 'custom'" ref="editableTableRef" :columns="editableColumns" v-model="formData[item.prop]" :default-data="defaultData" />
+          <Render v-if="item.render" :render="item.render" v-model="formData[item.prop]"></Render>
         </das-form-item>
       </das-form>
     </div>
@@ -22,104 +21,6 @@ import type { Props, Emits } from './type'
 import { ref, watchEffect, computed } from 'vue'
 import Render from '../Render/index.vue'
 import { i18n } from '@/utils/i18n'
-import { EditableTable } from '@/views/energyFee/common/components/EditableTable'
-import type { EditableTableProps } from '@/views/energyFee/common/components/EditableTable'
-
-/** 分时 */
-const timePeriodOptions: any = (function () {
-  const res = []
-  for (let i = 0; i <= 24; i++) {
-    res.push({
-      value: `${String(i).padStart(2, '0')}:00`,
-      label: `${String(i).padStart(2, '0')}:00`,
-    })
-    if (i < 24) {
-      res.push({
-        value: `${String(i).padStart(2, '0')}:30`,
-        label: `${String(i).padStart(2, '0')}:30`,
-      })
-    }
-  }
-  return res
-})()
-
-const editableColumns: EditableTableProps['columns'] = [
-  {
-    label: i18n('开始时间' as any).value,
-    prop: 'startTime',
-    type: 'select',
-    required: true,
-    options: (row: any) => {
-      return timePeriodOptions.map((item: any) => {
-        let disabled: any = false
-        if (row.endTime && item.value >= row?.endTime) {
-          disabled = true
-        }
-        return {
-          ...item,
-          disabled,
-        }
-      })
-    },
-    validator: (val: any) => {
-      if (!val) {
-        return '必填' as string
-      }
-    },
-  },
-  {
-    label: i18n('结束时间' as any).value,
-    prop: 'endTime',
-    type: 'select',
-    required: true,
-    options: (row: any) => {
-      return timePeriodOptions.map((item: any) => {
-        let disabled: any = false
-        if (row.startTime && item.value <= row?.startTime) {
-          disabled = true
-        }
-        return {
-          ...item,
-          disabled,
-        }
-      })
-    },
-    validator: (val: any) => {
-      if (!val) {
-        return '必填' as string
-      }
-    },
-  },
-  {
-    label: i18n('单价' as any).value,
-    prop: 'price',
-    required: true,
-    validator: (val: any) => {
-      if (!val) {
-        return '必填' as string
-      }
-    },
-  },
-  {
-    label: i18n('备注' as any).value,
-    prop: 'mark',
-  },
-]
-
-const defaultData = {
-  startTime: '',
-  endTime: '',
-  price: '',
-  mark: '',
-}
-
-const editableTableRef = ref<InstanceType<typeof EditableTable>>()
-
-const editableValidator = () => {
-  const flag = editableTableRef.value?.[0].validate()
-
-  return flag ? '' : ' '
-}
 
 const $myDialogBody = ref()
 const popupCont = (triggerNode: any) => {
@@ -149,14 +50,7 @@ const formItems = computed<any[]>(() => {
     if (typeof item === 'function') {
       _item = item(formData.value)
     }
-    const validator = _item.validator
     let res: any = JSON.parse(JSON.stringify(_item))
-    if (validator) {
-      res.validator = validator
-    }
-    if (_item.type === 'custom') {
-      res.validator = editableValidator
-    }
     if (_item.type === 'select' && !res.getPopupContainer) {
       res.getPopupContainer = popupCont
     }

@@ -1,4 +1,3 @@
-import { EditDialog } from '@/views/energyFee/common/components/EditDialog'
 import type { EditDialogProps } from '@/views/energyFee/common/components/EditDialog'
 import { DasMessage } from '@/das-fe/ui'
 import { charingTypeOptions } from '@/views/energyFee/charingSetting/constants'
@@ -6,7 +5,6 @@ import { isUndef } from '@/views/energyFee/common/utils'
 import { BillingMethod } from '@/views/energyFee/charingSetting/enums'
 import { createSetting, updateSetting } from '@/views/energyFee/apis'
 import { ref, computed, Ref } from 'vue'
-import { useEditableTable } from '../use-editable-table'
 import { Edit } from '@/views/energyFee/common/components/EditDialog'
 import { pendingDecorator } from '@/views/energyFee/common/utils'
 
@@ -26,6 +24,7 @@ export function useAdd({ energyTypeOptions }: { energyTypeOptions: Ref<any> }) {
       if (formData.billingMethod === BillingMethod.Time) {
         return {
           ...base,
+          prop: 'unitPriceDtos',
           col: 4,
           type: 'custom',
           render: () => <div>fsdfsdf</div>,
@@ -92,7 +91,8 @@ export function useAdd({ energyTypeOptions }: { energyTypeOptions: Ref<any> }) {
     name: '',
     energyTypeId: energyTypeOptions.value[0]?.value,
     billingMethod: charingTypeOptions[0]?.value,
-    unitPriceDtos: '',
+    unitPrice: '',
+    unitPriceDtos: [],
     remark: '',
   }))
 
@@ -138,7 +138,7 @@ export function useAdd({ energyTypeOptions }: { energyTypeOptions: Ref<any> }) {
 
   function open(type: EditDialogProps['type'], data?: any): Promise<boolean> {
     if (type === 'add') {
-      data = initFormData.value
+      data = JSON.parse(JSON.stringify(initFormData.value))
     }
     dialogType.value = type
 
