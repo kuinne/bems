@@ -16,7 +16,7 @@
 </template>
 
 <script setup lang="tsx">
-import { computed, watchEffect } from 'vue'
+import { computed } from 'vue'
 import { useTable } from '../../use-table/index.tsx'
 import { useFilter } from '../../use-filter/index.tsx'
 import { useTree } from '../../use-tree/index.tsx'

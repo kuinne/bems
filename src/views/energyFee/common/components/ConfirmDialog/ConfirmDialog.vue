@@ -27,6 +27,7 @@ import { i18n } from '@/utils/i18n'
 import { ref, watchEffect, defineProps, defineEmits, withDefaults } from 'vue'
 import { DasDialog, DasButton } from '@/das-fe/ui'
 import type { Props, Emits } from './type'
+
 const props = withDefaults(defineProps<Props>(), {
   visible: false,
   title: '操作确认',
