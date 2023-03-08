@@ -13,6 +13,7 @@
 		"new:package": "node scripts/generate-package",
 		"das-fe": "node scripts/clone-cli --auto",
 		"async:starter": "node scripts/async-starter --auto",
+		"async-das-fe": "node scripts/async-starter --auto && node scripts/clone-cli --auto",
 		"test": "node scripts/test"
 	},
 	"dependencies": {

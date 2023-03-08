@@ -1,15 +1,15 @@
 import { createVNode, render } from 'vue'
-import ConfirmDialogConstructor from './ConfirmDialog.vue'
+import ComponentConstructor from './EditDialog.vue'
 
 const initInstance = (props: any, container: HTMLElement) => {
-  const vnode = createVNode(ConfirmDialogConstructor, props)
+  const vnode = createVNode(ComponentConstructor, props)
 
   render(vnode, container)
   document.body.appendChild(container)
   return vnode.component!
 }
-export const Confirm = (props: InstanceType<typeof ConfirmDialogConstructor>['$props']): Promise<'close' | 'confirm'> => {
-  return new Promise((resolve, reject) => {
+export const Edit = (props: Omit<InstanceType<typeof ComponentConstructor>['$props'], 'visible'>): Promise<any> => {
+  return new Promise<any>((resolve, reject) => {
     const container = document.createElement('div')
 
     const destroy = () => {
@@ -22,8 +22,8 @@ export const Confirm = (props: InstanceType<typeof ConfirmDialogConstructor>['$p
         reject('close')
         destroy()
       },
-      onConfirm: () => {
-        resolve('confirm')
+      onSubmit: (formData: any) => {
+        resolve(formData)
         destroy()
       },
     }

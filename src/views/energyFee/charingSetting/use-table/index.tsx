@@ -1,4 +1,4 @@
-import { ref, watch, Ref, toRaw, watchEffect } from 'vue'
+import { ref, watch, Ref } from 'vue'
 
 import { Table } from '@/views/energyFee/common/components/Table'
 import type { TableProps } from '@/views/energyFee/common/components/Table'
@@ -6,7 +6,7 @@ import { i18n } from '@/utils/i18n'
 import { getSetting } from '@/views/energyFee/apis'
 import { optionsToEnums } from '@/views/energyFee/common/utils'
 import { charingTypeOptions } from '@/views/energyFee/charingSetting/constants'
-export function useTable(options: { filterObj: Ref<any>; onEdit: (row: any) => Promise<unknown>; onView: (row: any) => Promise<unknown>; onDelete: (ids: string[]) => Promise<unknown> }) {
+export function useTable(options: { filterObj: Ref<any>; onEdit: (row: any) => Promise<boolean>; onView: (row: any) => Promise<boolean>; onDelete: (ids: string[]) => Promise<boolean> }) {
   const tableRef = ref<InstanceType<typeof Table>>()
   const columns = ref<TableProps['columns']>([
     {
@@ -55,7 +55,7 @@ export function useTable(options: { filterObj: Ref<any>; onEdit: (row: any) => P
 
     if (!error) {
       data.value = res.records
-      console.log('data', data.value)
+      // console.log('data', data.value)
 
       total.value = res.total
     }

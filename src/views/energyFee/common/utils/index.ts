@@ -1,4 +1,4 @@
-import { Options } from '../../components/ChargingSetting/constants'
+import type { Fn, Options } from '../type'
 export * from './export'
 
 export const isUndef = (val: any) => val === undefined || val === null
@@ -23,4 +23,17 @@ export const optionsToEnums = (options: Options<any>) => {
 
 export function isArray<T>(value: unknown): value is T[] {
   return Array.isArray(value)
+}
+
+export function pendingDecorator<T extends Fn<Promise<boolean>>>(fn: T) {
+  return async (...args: Parameters<T>): Promise<boolean> => {
+    return new Promise(async (resolve) => {
+      try {
+        const shouldResolved = await fn(...args)
+        resolve(shouldResolved)
+      } catch (error) {
+        return false
+      }
+    })
+  }
 }

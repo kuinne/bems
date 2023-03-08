@@ -1,5 +1,5 @@
 export type Props = {
-  // visible: boolean
+  visible: boolean
   content?: string
   title?: string
   type?: 'primary' | 'warning' | 'danger' | 'delete'

@@ -1,4 +1,4 @@
-export type FormItems = {
+export type FormItem = {
   prop: string
   label: string
   required?: boolean
@@ -11,7 +11,9 @@ export type FormItems = {
   render?: () => JSX.Element
   isRight?: boolean
   options?: { value: any; label: string }[]
-}[]
+}
+
+export type FormItems = (FormItem | ((formData: any) => FormItem))[]
 
 export type Props = {
   visible: boolean

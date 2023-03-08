@@ -3,7 +3,7 @@
     <div ref="$myDialogBody">
       <das-form :cols="4" marginRight="50px" labelPosition="top" alignType="horizontal">
         <das-form-item v-for="item in formItems" :key="item.prop" v-bind="item" v-model="formData[item.prop]" v-model:error="validateErrors[item.prop]" :class="{ ['form-item-right']: item.isRight }">
-          <Render v-if="item.render" :render="item.render"></Render>
+          <Render v-if="item.render" :render="item.render" v-model="formData[item.prop]"></Render>
         </das-form-item>
       </das-form>
     </div>
@@ -15,10 +15,10 @@
 </template>
 
 <script setup lang="ts">
-import { DasDialog, DasForm, DasFormItem, DasButton, DasMessage } from '@/das-fe/ui'
+import { DasDialog, DasForm, DasFormItem, DasButton } from '@/das-fe/ui'
 
 import type { Props, Emits } from './type'
-import { ref, toRaw, unref, watchEffect, computed } from 'vue'
+import { ref, watchEffect, computed } from 'vue'
 import Render from '../Render/index.vue'
 import { i18n } from '@/utils/i18n'
 
@@ -45,14 +45,19 @@ const title = computed(() => {
 })
 
 const formItems = computed<any[]>(() => {
-  return props.formItems.map((item) => {
-    let res: any = item
-    if (item.type === 'select' && !res.getPopupContainer) {
+  return props.formItems.map((item: any) => {
+    let _item = item
+    if (typeof item === 'function') {
+      _item = item(formData.value)
+    }
+    let res: any = JSON.parse(JSON.stringify(_item))
+    if (_item.type === 'select' && !res.getPopupContainer) {
       res.getPopupContainer = popupCont
     }
     if (props.type === 'view') {
       res.isView = true
     }
+
     return res
   })
 })
@@ -70,7 +75,7 @@ const validate = () => {
   validateErrors.value = {}
   let flag = true
   for (let [prop, value] of Object.entries(formData.value)) {
-    const formItem = props.formItems.find((item) => item.prop === prop)
+    const formItem = formItems.value.find((item) => item.prop === prop)
 
     if (formItem && formItem.validator) {
       const error = formItem.validator(value)
