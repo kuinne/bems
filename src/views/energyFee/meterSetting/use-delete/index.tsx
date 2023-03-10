@@ -1,42 +1,29 @@
 import { Confirm } from '@/views/energyFee/common/components/ConfirmDialog'
 import { DasMessage } from '@/das-fe/ui'
-import { ref } from 'vue'
-import { pendingDecorator } from '@/views/energyFee/common/utils'
 
-const remove = (ids: string[]) => {
-  console.log('~~~~~~~remove', ids)
+import { deleteMeterSetting } from '@/views/energyFee/apis'
+import { Fn } from '../../common/type'
 
-  return new Promise<[any, any]>((resolve) => {
-    setTimeout(() => {
-      resolve(['', 'ok'])
-    }, 300)
-  })
-}
 export function useDelete() {
   const title = '表记设置'
-  const ids = ref<string[]>([])
 
-  const confirm = async () => {
-    const [error, data] = await remove(ids.value)
+  const open = async (ids: string[], callback?: Fn<any>) => {
+    await Confirm({
+      type: 'delete',
+      content: '删除后将无法恢复<br/>确认是否删除？',
+    })
+    const [error, data] = await deleteMeterSetting({
+      ids,
+    })
     if (!error) {
       DasMessage.success(`删除${title}成功`)
-      return true
+      callback?.()
     } else {
-      DasMessage.error(`删除${title}失败`, error)
-      return false
+      DasMessage.error(`删除${title}失败，${error.msg}`)
     }
   }
 
-  const open = async (_ids: string[]) => {
-    ids.value = _ids
-    await Confirm({
-      content: '删除后将影响相关表计的计费<br/>确定删除吗？',
-    })
-
-    return confirm()
-  }
-
   return {
-    open: pendingDecorator(open),
+    open,
   }
 }

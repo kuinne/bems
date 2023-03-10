@@ -4,12 +4,16 @@
       check-strictly
       checkboxType="default"
       ref="dasTreeRef"
-      :data="dataSource"
+      :data="treeData"
       v-model="checkedKeys"
       show-checkbox
       node-key="id"
       default-expand-all
       :expand-on-click-node="false"
+      :props="{
+        label: 'name',
+        children: 'childs',
+      }"
       @check="handleCheckChange"
     >
       <template #default="{ node, data }">
@@ -19,12 +23,15 @@
         </span>
       </template>
     </das-tree>
+    <das-button @click="handleSearch">{{ i18n('查询' as any).value }}</das-button>
   </div>
 </template>
 
 <script setup lang="ts">
-import { DasTree, vOverlay } from '@/das-fe/ui'
-import { ref, watch } from 'vue'
+import { DasTree, vOverlay, DasButton } from '@/das-fe/ui'
+import { getObjTree } from '@/views/energyFee/apis'
+import { ref, defineProps, watch, computed } from 'vue'
+import { i18n } from '@/utils/i18n'
 
 interface Tree {
   id: number
@@ -32,60 +39,39 @@ interface Tree {
   children?: Tree[]
 }
 
+const props = defineProps<{
+  energyTypeId: string
+  dimensionId: string
+}>()
+
+const emits = defineEmits<{
+  ($event: 'search', data: any): void
+  ($event: 'update:checkedNodes', data: any): void
+}>()
+
 const dasTreeRef = ref()
 
-const dataSource = ref<Tree[]>([
-  {
-    id: 1,
-    label: 'A级菜单',
-    children: [
-      {
-        id: 4,
-        label: 'B级菜单',
-        children: [
-          {
-            id: 9,
-            label: 'C级菜单',
-          },
-          {
-            id: 10,
-            label: 'C级菜单',
-          },
-        ],
-      },
-    ],
-  },
-  {
-    id: 2,
-    label: 'A级菜单',
-    children: [
-      {
-        id: 5,
-        label: 'B级菜单',
-      },
-      {
-        id: 6,
-        label: 'B级菜单',
-      },
-    ],
-  },
-  {
-    id: 3,
-    label: 'A级菜单',
-    children: [
-      {
-        id: 7,
-        label: 'B级菜单',
-      },
-      {
-        id: 8,
-        label: 'B级菜单',
-      },
-    ],
-  },
-])
+const treeData = ref<Tree[]>([])
 
 const checkedKeys = ref<any>([])
+
+const loading = ref(false)
+
+const checkedNodes = computed(() => dasTreeRef.value?.treeRef?.getCheckedNodes() || [])
+
+const fetchData = async () => {
+  treeData.value = []
+  loading.value = true
+  const params = {
+    energyTypeId: props.energyTypeId,
+    dimensionId: props.dimensionId,
+  }
+  const [error, data] = await getObjTree(params)
+  if (!error) {
+    treeData.value = data
+  }
+  loading.value = false
+}
 
 const handleClickAll = (node: any) => {
   if (node.data.isSelectAll) {
@@ -114,6 +100,25 @@ const handleCheckChange = (data: any) => {
     }
   }
 }
+
+const handleSearch = () => {
+  emits(
+    'search',
+    checkedNodes.value.map((item: any) => item.data),
+  )
+}
+
+watch(
+  () => [props.energyTypeId, props.dimensionId],
+  () => {
+    if (props.energyTypeId && props.dimensionId) {
+      fetchData()
+    }
+  },
+  {
+    immediate: true,
+  },
+)
 </script>
 
 <style lang="scss">

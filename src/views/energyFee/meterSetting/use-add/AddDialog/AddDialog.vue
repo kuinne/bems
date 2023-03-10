@@ -1,40 +1,41 @@
 <template>
   <das-dialog :title="title" v-model="visible" @close="handleClose" width="960px" height="580px">
-    <div ref="$myDialogBody" class="layout-container">
+    <div ref="$myDialogBody" class="layout-container" v-if="visible">
       <div class="left">
         <div class="energy-type">
           <div class="label">能源类型</div>
-          <div class="box">电</div>
+          <div class="box">{{ props.energyType.name }}</div>
         </div>
-        <div class="energy-dimension">
+        <div class="energy-dimension" v-if="dimensionData.length > 0">
           <div class="label">能源维度</div>
-          <Tab :options="tabOptions" v-model="tabActiveKey" />
+          <Tab :options="dimensionData" v-model="currentDimensionId" key-name="id" label-name="name" />
         </div>
-        <Tree />
+        <Tree :energy-type-id="energyType.id" :dimension-id="currentDimensionId" @search="handleTreeSearch" />
       </div>
       <div class="main">
-        <Table v-model:selection-rows="selectionRows" />
+        <Table v-model:selection-rows="selectionRows" :dimension-id="currentDimensionId" :checked-nodes="tableCheckedNodes" />
       </div>
       <div class="right">
         <SelectList v-model:selection-rows="selectionRows" />
       </div>
     </div>
     <template #footer>
-      <das-button class="submit-btn" btnType="primary" @click="handleSubmit" v-if="['edit', 'add'].includes(props.type)">{{ i18n('提交' as any).value }}</das-button>
-      <das-button @click="handleCancel">{{ i18n('取消' as any).value }}</das-button>
+      <das-button class="submit-btn" btnType="primary" @click="handleSubmit">{{ i18n('提交' as any).value }}</das-button>
+      <das-button @click="handleClose">{{ i18n('取消' as any).value }}</das-button>
     </template>
   </das-dialog>
 </template>
 
 <script setup lang="ts">
-import { DasDialog, DasForm, DasFormItem, DasButton, DasMessage, DasIcon, DasTooltip } from '@/das-fe/ui'
+import { DasDialog, DasButton, DasMessage } from '@/das-fe/ui'
 import Tab from './Tab.vue'
 import Tree from './Tree.vue'
 import Table from './Table.vue'
 import SelectList from './SelectList.vue'
 import type { Props, Emits } from './type'
-import { ref, toRaw, unref, watchEffect, computed } from 'vue'
+import { ref, toRaw, unref, watchEffect, watch } from 'vue'
 import { i18n } from '@/utils/i18n'
+import { getDimension } from '@/views/energyFee/apis'
 
 const $myDialogBody = ref()
 const popupCont = (triggerNode: any) => {
@@ -47,69 +48,67 @@ const emits = defineEmits<Emits>()
 
 const visible = ref(false)
 
-const formData = ref<any>({})
+const title = '添加表计'
 
-const title = computed(() => {
-  const map = {
-    edit: '编辑',
-    add: '新增',
-    view: '查看',
-  }
-  return map[props.type] + props.title
-})
-
-const tabOptions = ref([
-  {
-    label: '我是内容',
-    key: '1',
-    showTooltip: false,
-  },
-  {
-    label: '我是内容我是内容我是内容',
-    key: '2',
-    showTooltip: true,
-  },
-  {
-    label: '我是内容我是内容我是内容',
-    key: '3',
-    showTooltip: false,
-  },
-  {
-    label: '我是内容',
-    key: '4',
-    showTooltip: false,
-  },
-  {
-    label: '我是内容',
-    key: '5',
-    showTooltip: false,
-  },
-])
-const tabActiveKey = ref(tabOptions.value[0].key)
+const dimensionData = ref<any[]>([])
+const currentDimensionId = ref<string>('')
 
 const selectionRows = ref<any[]>([])
+
+const tableCheckedNodes = ref<any[]>([])
 const handleClose = () => {
   emits('close')
 }
 
-const handleCancel = () => {
-  emits('close')
-}
-
-const resetForm = () => {
-  formData.value = {}
-}
-
 const handleSubmit = () => {
-  emits('submit', formData.value)
+  if (selectionRows.value.length === 0) {
+    DasMessage.warning({
+      message: '请选择表计',
+    })
+    return
+  }
+  emits(
+    'submit',
+    selectionRows.value.map((item) => item.id),
+  )
 }
 
-watchEffect(() => {
-  visible.value = props.visible
-  if (!props.visible) {
-    resetForm()
+const fetchDimensionData = async () => {
+  dimensionData.value = []
+  const params = {
+    energyTypeId: props.energyType.id,
   }
-})
+  const [error, data] = await getDimension(params)
+  if (!error) {
+    dimensionData.value = data
+    if (data.length > 0) {
+      currentDimensionId.value = data[0].id
+    }
+  }
+}
+
+const handleTreeSearch = (_checkedNodes: any[]) => {
+  tableCheckedNodes.value = _checkedNodes.map((item) => ({
+    typeCode: props.energyType.code,
+    dimensionId: currentDimensionId.value,
+    ObjId: item.isObj ? item.id : null,
+    gradationId: !item.isObj ? item.orgId : null,
+    objectName: item.name,
+  }))
+}
+
+watch(
+  () => props.visible,
+  () => {
+    if (!props.visible) {
+      selectionRows.value = []
+      tableCheckedNodes.value = []
+    } else {
+      fetchDimensionData()
+    }
+    visible.value = props.visible
+  },
+)
 </script>
 
 <style scoped lang="scss">

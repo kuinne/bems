@@ -1,7 +1,10 @@
 export type Props = {
   visible: boolean
-  type: 'edit' | 'view' | 'add'
-  title: string
+  energyType: {
+    id: string
+    name: string
+    code: string
+  }
 }
 
 export type Emits = {

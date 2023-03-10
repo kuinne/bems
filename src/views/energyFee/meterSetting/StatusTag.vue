@@ -8,23 +8,24 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 const props = defineProps<{
-  status: 'online' | 'unactivated' | 'offline' | 'deactivate'
+  status: number
 }>()
 
 const options = {
-  online: {
-    label: '在线',
-    color: '#1BA854',
-  },
-  unactivated: {
+  0: {
     label: '未激活',
     color: '#276FF5',
   },
-  offline: {
+  1: {
+    label: '在线',
+    color: '#1BA854',
+  },
+
+  2: {
     label: '离线',
     color: '#666666',
   },
-  deactivate: {
+  3: {
     label: '已停用',
     color: '#FB2323',
   },

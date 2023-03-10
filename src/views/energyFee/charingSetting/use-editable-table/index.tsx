@@ -20,6 +20,7 @@ export const timePeriodOptions: any = (function () {
   }
   return res
 })()
+const DECIMAL_REG = /^[0-9]{1,10}(\.[0-9]{1,10})?$/
 
 export function useEditableTable({ formData, isView }: { formData: Ref<any>; isView: Ref<boolean> }) {
   const columns: EditableTableProps['columns'] = [
@@ -74,8 +75,8 @@ export function useEditableTable({ formData, isView }: { formData: Ref<any>; isV
       prop: 'price',
       required: true,
       validator: (val: any) => {
-        if (!val) {
-          return '必填' as string
+        if (!DECIMAL_REG.test(val || '')) {
+          return '必填，数值，可以为小数，整数位最多10位，小数位最多10位' as string
         }
       },
     },

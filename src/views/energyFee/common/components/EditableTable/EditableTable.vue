@@ -10,6 +10,7 @@
         :selection="!props.isView"
         outer-border
         :data="tableData"
+        :row-key="ROW_KEY"
         v-model:selection-rows="selectionRows"
         @cell-mouse-enter="handleMouseEnter"
         @cell-mouse-leave="handleMouseLeave"
@@ -62,6 +63,8 @@ import { useRowEdit } from './use-row-edit'
 import type { Props, Emits } from './type'
 import { i18n } from '@/utils/i18n'
 
+const ROW_KEY = '_id'
+
 const props = withDefaults(defineProps<Props>(), {
   modelValue: [],
   isView: false,
@@ -77,7 +80,10 @@ const tableData = ref<any>([])
 const tableColumns = ref<Props['columns']>(props.columns || [])
 
 watchEffect(() => {
-  tableData.value = props.modelValue
+  tableData.value = props.modelValue.map((item: any) => ({
+    ...item,
+    [ROW_KEY]: nanoid(),
+  }))
 })
 
 const selectionRows = ref<any>([])
@@ -109,7 +115,7 @@ const handleMouseLeave = (row: any) => {
 
 const handleAdd = () => {
   tableData.value.push({
-    id: nanoid(),
+    [ROW_KEY]: nanoid(),
     ...props.defaultData,
   })
 }
@@ -122,7 +128,14 @@ const handleBatchDelete = () => {
 }
 
 const handleChange = () => {
-  emits('update:modelValue', tableData.value)
+  emits(
+    'update:modelValue',
+    tableData.value.map((item: any) => {
+      const _item = JSON.parse(JSON.stringify(item))
+      delete _item[ROW_KEY]
+      return _item
+    }),
+  )
 }
 
 defineExpose({

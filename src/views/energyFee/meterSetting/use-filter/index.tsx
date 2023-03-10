@@ -1,5 +1,5 @@
 import { DasSearchForm } from '@/das-fe/ui/packages/search-form'
-import { ref } from 'vue'
+import { ref, watchEffect } from 'vue'
 import { meterTypeOptions } from '@/views/energyFee/meterSetting/constants'
 
 type DasSearchFormProps = InstanceType<typeof DasSearchForm>['$props']
@@ -14,6 +14,12 @@ export function useFilter() {
     filterObj.value[prop] = val
   }
 
+  const dasSearchFormRef = ref<any>()
+
+  watchEffect(() => {
+    console.log('dasSearchFormRef.', dasSearchFormRef.value)
+  })
+
   const options = ref<DasSearchFormProps['options']>([
     {
       key: 'meterType',
@@ -27,6 +33,9 @@ export function useFilter() {
       closable: true,
       size: 'middle',
       change: (data: any) => handleChange('meterType', data.value),
+      getPopupContainer: (triggerNode: any) => {
+        return dasSearchFormRef.value?.parentNode
+      },
     },
     {
       key: 'search',
@@ -40,7 +49,11 @@ export function useFilter() {
       change: (data: any) => handleChange('search', data.value),
     },
   ])
-  const Filter = () => <DasSearchForm options={options.value}></DasSearchForm>
+  const Filter = () => (
+    <div ref={dasSearchFormRef}>
+      <DasSearchForm options={options.value}></DasSearchForm>
+    </div>
+  )
 
   return {
     Filter,

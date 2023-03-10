@@ -29,13 +29,11 @@
 import { DasSplitPanel, vOverlay } from '@/das-fe/ui'
 import { ref, computed } from 'vue'
 
-type DasSplitPanelProps = InstanceType<typeof DasSplitPanel>['$props']
-
 const options = ref({
   canFold: true,
   canDrag: true,
   defaultType: '1',
-  defalutWidth: 400,
+  defalutWidth: 225,
   firstMin: 100,
   secondMin: 100,
 })
@@ -55,12 +53,19 @@ const defaultSplit = computed(() => {
   width: 100%;
   background-color: #e2e7ef;
   box-sizing: border-box;
-  padding: 10px;
+  padding: 0 10px 10px 10px;
   .content {
-    background: #fff;
+    .tab-wrapper {
+      background: #fff;
+      margin-bottom: 10px;
+      padding: 10px 18px;
+      box-sizing: border-box;
+    }
+
     height: 100%;
     position: relative;
     .right-container {
+      background: #fff;
       height: 100%;
       display: flex;
       flex-direction: column;
@@ -70,8 +75,11 @@ const defaultSplit = computed(() => {
     }
   }
   .tree-container {
+    background: #fff;
     width: 100%;
     height: 100%;
+    box-sizing: border-box;
+    padding-top: 10px;
     .tree-content {
       width: 100%;
       height: 100%;

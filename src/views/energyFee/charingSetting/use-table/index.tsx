@@ -1,4 +1,4 @@
-import { ref, watch, Ref } from 'vue'
+import { ref, watch, Ref, toRaw, watchEffect, computed, onMounted, onActivated } from 'vue'
 
 import { Table } from '@/views/energyFee/common/components/Table'
 import type { TableProps } from '@/views/energyFee/common/components/Table'
@@ -6,7 +6,9 @@ import { i18n } from '@/utils/i18n'
 import { getSetting } from '@/views/energyFee/apis'
 import { optionsToEnums } from '@/views/energyFee/common/utils'
 import { charingTypeOptions } from '@/views/energyFee/charingSetting/constants'
-export function useTable(options: { filterObj: Ref<any>; onEdit: (row: any) => Promise<boolean>; onView: (row: any) => Promise<boolean>; onDelete: (ids: string[]) => Promise<boolean> }) {
+import { vAuth } from '@/utils/directive'
+import type { Fn } from '../../common/type'
+export function useTable(options: { filterObj: Ref<any>; onEdit: Fn<any>; onView: Fn<any>; onDelete: Fn<any> }) {
   const tableRef = ref<InstanceType<typeof Table>>()
   const columns = ref<TableProps['columns']>([
     {
@@ -36,16 +38,31 @@ export function useTable(options: { filterObj: Ref<any>; onEdit: (row: any) => P
   const total = ref<TableProps['total']>(0)
   const selectionRows = ref<TableProps['columns']>([])
   const page = ref<TableProps['page']>({
-    pageSize: 10,
+    pageSize: 20,
     curPage: 1,
   })
 
   const filterObj = ref({
+    energyTypeId: -1,
     ...options.filterObj.value,
+  })
+
+  const actions = computed<TableProps['actions']>(() => {
+    const res: any[] = ['view']
+    if (vAuth(null, { code: 'charingSetting-edit' })) {
+      res.push('edit')
+    }
+
+    if (vAuth(null, { code: 'charingSetting-delete' })) {
+      res.push('delete')
+    }
+
+    return res
   })
 
   const fetchData = async () => {
     loading.value = true
+    clearSelection()
     const params = {
       pageIndex: page.value.curPage,
       pageSize: page.value.pageSize,
@@ -55,38 +72,28 @@ export function useTable(options: { filterObj: Ref<any>; onEdit: (row: any) => P
 
     if (!error) {
       data.value = res.records
-      // console.log('data', data.value)
-
-      total.value = res.total
     }
 
     loading.value = false
+    total.value = parseFloat(res.total || 0)
   }
 
-  const handleView = async (row: any) => {
-    const shouldUpdate = await options.onView(row)
-    if (shouldUpdate) {
-      fetchData()
-    }
+  const handleView = (row: any) => {
+    options.onView(row)
   }
 
-  const handleEdit = async (row: any) => {
-    const shouldUpdate = await options.onEdit(row)
-
-    if (shouldUpdate) {
-      fetchData()
-    }
+  const handleEdit = (row: any) => {
+    options.onEdit(row)
   }
 
-  const handleDelete = async (row: any) => {
-    const shouldUpdate = await options.onDelete([row.id])
-
-    if (shouldUpdate) {
-      fetchData()
-    }
+  const handleDelete = (row: any) => {
+    options.onDelete([row.id])
   }
 
-  fetchData()
+  const clearSelection = () => {
+    selectionRows.value = []
+    tableRef.value?.clearSelection()
+  }
 
   watch(
     () => options.filterObj.value,
@@ -115,9 +122,18 @@ export function useTable(options: { filterObj: Ref<any>; onEdit: (row: any) => P
   )
 
   watch(
-    () => [page.value, filterObj.value],
+    () => page.value,
     () => {
       fetchData()
+    },
+  )
+
+  watch(
+    () => filterObj.value,
+    (val, oldVal) => {
+      if (JSON.stringify(val) !== JSON.stringify(oldVal)) {
+        fetchData()
+      }
     },
   )
 
@@ -129,6 +145,7 @@ export function useTable(options: { filterObj: Ref<any>; onEdit: (row: any) => P
         data={data.value}
         loading={loading.value}
         total={total.value}
+        actions={actions.value}
         v-model:selectionRows={selectionRows.value}
         v-model:page={page.value}
         onView={handleView}
@@ -144,8 +161,6 @@ export function useTable(options: { filterObj: Ref<any>; onEdit: (row: any) => P
     update: () => {
       fetchData()
     },
-    clearSelection: () => {
-      tableRef.value?.clearSelection()
-    },
+    clearSelection,
   }
 }

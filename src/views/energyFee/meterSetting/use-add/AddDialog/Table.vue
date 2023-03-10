@@ -18,12 +18,21 @@
 <script setup lang="tsx">
 import { Table } from '@/views/energyFee/common/components/Table'
 import type { TableProps } from '@/views/energyFee/common/components/Table'
-import StatusTag from './StatusTag.vue'
+import StatusTag from '../../StatusTag.vue'
 import { ref, defineProps, defineEmits, watch } from 'vue'
 import { DasSearch } from '@/das-fe/ui'
+import { getMeterInfoList } from '@/views/energyFee/apis'
 
 const props = defineProps<{
   selectionRows: any[]
+  checkedNodes: {
+    typeCode: string
+    dimensionId: string
+    isObj: boolean
+    objId: string
+    orgId: string
+    name: string
+  }[]
 }>()
 
 const emits = defineEmits<{
@@ -83,31 +92,39 @@ watch(
 )
 const fetchData = async () => {
   loading.value = true
-  ///....
-  const res: any = await new Promise((resolve) => {
-    setTimeout(() => {
-      resolve([
-        {
-          id: '123',
-          meterName: '表计3131',
-          meterCode: '223',
-          meterTypeName: '实体表计',
-          status: 'online',
-        },
-        {
-          id: '111',
-          meterName: '表计11113131',
-          meterCode: '111223',
-          meterTypeName: '实体表计',
-          status: 'online',
-        },
-      ])
-    }, 300)
-  })
-  data.value = res
+
+  const params = {
+    pageIndex: page.value.curPage,
+    pageSize: page.value.pageSize,
+
+    list: props.checkedNodes.map((item: any) => ({
+      typeCode: item.typeCode,
+      dimensionId: item.dimensionId || '-1',
+      objId: item.id,
+      gradationId: item.orgId || '-1',
+      objectName: item.name,
+    })),
+  }
+  const [error, res] = await getMeterInfoList(params)
+  if (!error) {
+    data.value = res.records
+    total.value = parseFloat(res.total)
+  }
   loading.value = false
 }
 
-fetchData()
+watch(
+  () => props.checkedNodes,
+  () => {
+    if (props.checkedNodes.length > 0) {
+      selectionRows.value = []
+      fetchData()
+    }
+  },
+  {
+    immediate: true,
+    deep: true,
+  },
+)
 </script>
 <style scoped lang="scss"></style>

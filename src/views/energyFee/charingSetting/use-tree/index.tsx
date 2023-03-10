@@ -1,59 +1,43 @@
 import { DasTree } from '@/das-fe/ui'
-import { ref, watchEffect } from 'vue'
+
+import { computed, onActivated, ref } from 'vue'
 import { getEnergyType } from '@/views/energyFee/apis'
-const mockData = [
-  {
-    id: '1',
-    name: 'ffff',
-    children: [
-      {
-        id: '1-1',
-        name: 'fdsfsd',
-      },
-    ],
-  },
-  {
-    id: '2',
-    name: '得到的',
-  },
-]
-const getTree = () => {
-  return new Promise<[any, any]>((resolve) => {
-    setTimeout(() => {
-      resolve(['', mockData])
-    }, 300)
-  })
-}
 
 export function useTree() {
-  const data = ref<any>([])
+  const dasTreeRef = ref<InstanceType<typeof DasTree>>()
+  const data = ref<any[]>([
+    {
+      name: '全部标准',
+      id: '-1',
+      children: [],
+    },
+  ])
   const loading = ref(false)
-  const currentNodeKey = ref<string>('-1')
-  const energyTypeOptions = ref<any>()
+  const currentNodeKey = ref<string>(data.value[0].id)
   const fetchData = async () => {
     loading.value = true
     const [error, res] = await getEnergyType()
     if (!error) {
-      data.value = [
-        {
-          name: '全部标准',
-          id: '-1',
-          children: res,
-        },
-      ]
-      energyTypeOptions.value = res.map((item) => ({
-        value: item.id,
-        label: item.name,
-      }))
+      data.value[0].children = res
     }
     loading.value = false
   }
 
-  const Tree = () => <DasTree default-expand-all={false} data={data.value} v-model={currentNodeKey.value}></DasTree>
-  fetchData()
+  const currentNode = computed(() => dasTreeRef.value?.treeRef?.getCurrentNode() || data.value[0])
+
+  const Tree = () => (
+    <DasTree ref={dasTreeRef} default-expand-all data={data.value} v-model={currentNodeKey.value}>
+      {{
+        default: ({ node, data }: any) => <div>{node.level === 1 ? data.name : `${data.name}(${data.count})`}</div>,
+      }}
+    </DasTree>
+  )
+
   return {
     Tree,
-    currentNodeKey,
-    energyTypeOptions,
+    currentNode,
+    update: () => {
+      fetchData()
+    },
   }
 }

@@ -1,12 +1,12 @@
-import { ref, watch, Ref, toRaw, watchEffect } from 'vue'
+import { ref, watch, Ref, toRaw, watchEffect, computed } from 'vue'
 
 import { Table } from '@/views/energyFee/common/components/Table'
 import type { TableProps } from '@/views/energyFee/common/components/Table'
 import { i18n } from '@/utils/i18n'
 import { getMeterSettingList } from '@/views/energyFee/apis'
-import { DasIcon } from '@/das-fe/ui'
+import StatusTag from '../StatusTag.vue'
 
-export function useTable(options: { filterObj: Ref<any>; onEdit: (row: any) => Promise<unknown>; onView: (row: any) => Promise<unknown>; onDelete: (ids: string[]) => Promise<unknown> }) {
+export function useTable(options: { filterObj: Ref<any> }) {
   const tableRef = ref<InstanceType<typeof Table>>()
   const columns = ref<TableProps['columns']>([
     {
@@ -18,7 +18,7 @@ export function useTable(options: { filterObj: Ref<any>; onEdit: (row: any) => P
       prop: 'meterName',
     },
     {
-      label: i18n('能源类型' as any).value,
+      label: i18n('能源分类' as any).value,
       prop: 'energyTypeName',
     },
     {
@@ -28,6 +28,7 @@ export function useTable(options: { filterObj: Ref<any>; onEdit: (row: any) => P
     {
       label: i18n('表计状态' as any).value,
       prop: 'status',
+      render: ({ row }) => <StatusTag status={row.status} />,
     },
   ])
   const data = ref<TableProps['data']>([])
@@ -35,7 +36,7 @@ export function useTable(options: { filterObj: Ref<any>; onEdit: (row: any) => P
   const total = ref<TableProps['total']>(0)
   const selectionRows = ref<TableProps['columns']>([])
   const page = ref<TableProps['page']>({
-    pageSize: 10,
+    pageSize: 20,
     curPage: 1,
   })
 
@@ -47,43 +48,23 @@ export function useTable(options: { filterObj: Ref<any>; onEdit: (row: any) => P
   const fetchData = async () => {
     loading.value = true
     const params = {
-      ...page.value,
+      pageIndex: page.value.curPage,
+      pageSize: page.value.pageSize,
       ...filterObj.value,
     }
     const [error, res] = await getMeterSettingList(params)
 
     if (!error) {
-      data.value = res.data
-
-      total.value = res.total
+      data.value = res.records
     }
 
     loading.value = false
+    total.value = parseFloat(res.total || 0)
   }
 
-  const handleView = async (row: any) => {
-    console.log('~~~~~~~~', selectionRows.value)
-
-    const shouldUpdate = await options.onView(row)
-    if (shouldUpdate) {
-      fetchData()
-    }
-  }
-
-  const handleEdit = async (row: any) => {
-    const shouldUpdate = await options.onEdit(row)
-
-    if (shouldUpdate) {
-      fetchData()
-    }
-  }
-
-  const handleDelete = async (row: any) => {
-    const shouldUpdate = await options.onDelete([row.id])
-
-    if (shouldUpdate) {
-      fetchData()
-    }
+  const clearSelection = () => {
+    selectionRows.value = []
+    tableRef.value?.clearSelection()
   }
 
   watch(
@@ -121,29 +102,17 @@ export function useTable(options: { filterObj: Ref<any>; onEdit: (row: any) => P
 
   const render = () => {
     return (
-      <Table
-        ref={tableRef}
-        columns={columns.value}
-        data={data.value}
-        loading={loading.value}
-        total={total.value}
-        v-model:selectionRows={selectionRows.value}
-        v-model:page={page.value}
-        onView={handleView}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-      />
+      <Table ref={tableRef} columns={columns.value} data={data.value} loading={loading.value} total={total.value} v-model:selectionRows={selectionRows.value} v-model:page={page.value} actions={[]} />
     )
   }
 
   return {
     Table: render,
     selectionRows,
+    page,
     update: () => {
       fetchData()
     },
-    clearSelection: () => {
-      tableRef.value?.clearSelection()
-    },
+    clearSelection,
   }
 }

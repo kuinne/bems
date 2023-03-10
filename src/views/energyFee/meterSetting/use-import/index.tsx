@@ -3,8 +3,9 @@ import { ImportDialog } from '@/views/energyFee/common/components/ImportDialog'
 import { ref, Ref } from 'vue'
 import { nanoid } from 'nanoid'
 import { importMeterSetting, downloadMeterSettingImportTemplate } from '@/views/energyFee/apis'
+import { Fn } from '../../common/type'
 
-export function useImport({ energyBillingSettingId }: { energyBillingSettingId: Ref<string> }) {
+export function useImport({ energyBillingSettingId, onFinish }: { energyBillingSettingId: Ref<string>; onFinish: Fn }) {
   const visible = ref(false)
 
   const handleClose = () => {
@@ -46,7 +47,7 @@ export function useImport({ energyBillingSettingId }: { energyBillingSettingId: 
     }
   }
 
-  const render = () => <ImportDialog visible={visible.value} onClose={handleClose} confirmImportAjax={confirmImportAjax} downloadTemplate={downloadTemplate} />
+  const render = () => <ImportDialog visible={visible.value} onClose={handleClose} confirmImportAjax={confirmImportAjax} downloadTemplate={downloadTemplate} onFinish={onFinish} />
 
   return {
     Import: render,

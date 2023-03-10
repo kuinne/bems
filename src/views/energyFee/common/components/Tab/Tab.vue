@@ -1,10 +1,12 @@
 <template>
   <div class="tab-container">
-    <Das-tabs :options="options" v-model:activeKey="activeKey">
-      <template v-for="item in options" #[item.contentSlot]>
-        <Render :render="item.render"></Render>
-      </template>
-    </Das-tabs>
+    <div class="tab-container-inner">
+      <Das-tabs :options="options" v-model:activeKey="activeKey">
+        <!-- <template v-for="item in options" #[item.contentSlot]>
+          <Render :render="item.render"></Render>
+        </template> -->
+      </Das-tabs>
+    </div>
   </div>
 </template>
 
@@ -32,6 +34,7 @@ watch(
   () => activeKey.value,
   () => {
     emits('update:activeKey', activeKey.value)
+    emits('change', activeKey.value)
   },
 )
 
@@ -42,15 +45,25 @@ watchEffect(() => {
 <style scoped lang="scss">
 .tab-container {
   --font-size-base: 12px;
+  padding: 10px 10px 0 10px;
+  box-sizing: border-box;
 
-  background: #fff;
-  :deep(.ant-tabs) {
-    font-size: var(--font-size-base);
-    .das-tab-label {
+  .tab-container-inner {
+    background: #fff;
+    :deep(.ant-tabs) {
       font-size: var(--font-size-base);
-    }
-    .ant-tabs-content {
-      padding: 0 0 10px 18px;
+      .das-tab-label {
+        font-size: var(--font-size-base);
+      }
+      .ant-tabs-content {
+        padding: 0 0 10px 18px;
+      }
+      .ant-tabs-nav {
+        margin: 0 !important;
+      }
+      .ant-tabs-content-holder {
+        display: none;
+      }
     }
   }
 }

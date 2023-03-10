@@ -6,9 +6,9 @@
       <div class="items-inner" :style="`transform: translateX(-${64 * index}px)`">
         <template v-for="item in options">
           <das-tooltip :text="item.label" v-if="item.showTooltip">
-            <div :class="['item', { 'is-active': item.key === activeKey }]" @click="handleItemClick(item)">{{ item.label }}</div>
+            <div :class="['item', { 'is-active': item[keyName] === activeKey }]" @click="handleItemClick(item)">{{ item[labelName] }}</div>
           </das-tooltip>
-          <div :class="['item', { 'is-active': item.key === activeKey }]" v-else @click="handleItemClick(item)">{{ item.label }}</div>
+          <div :class="['item', { 'is-active': item[keyName] === activeKey }]" v-else @click="handleItemClick(item)">{{ item[labelName] }}</div>
         </template>
       </div>
     </div>
@@ -20,10 +20,18 @@
 import { ref, defineProps, defineEmits } from 'vue'
 import { DasIcon, DasTooltip } from '@/das-fe/ui'
 
-const props = defineProps<{
-  options: any
-  modelValue: string
-}>()
+const props = withDefaults(
+  defineProps<{
+    options: any
+    modelValue: string
+    labelName?: string
+    keyName?: string
+  }>(),
+  {
+    labelName: 'label',
+    keyName: 'key',
+  },
+)
 
 const emits = defineEmits<{
   ($event: 'update:modelValue', val: any): void
@@ -46,8 +54,8 @@ const handleBack = () => {
 }
 
 const handleItemClick = (item: any) => {
-  activeKey.value = item.key
-  emits('update:modelValue', item.key)
+  activeKey.value = item[props.keyName]
+  emits('update:modelValue', item[props.keyName])
 }
 </script>
 <style scoped lang="scss">

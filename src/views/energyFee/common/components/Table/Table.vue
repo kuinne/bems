@@ -35,14 +35,6 @@ import { DasTable, DasTableColumn, DasButton, DasSpin } from '@/das-fe/ui'
 import type { Props, Emits } from './type'
 import { isUndef } from '../../utils'
 
-// const props = withDefaults(defineProps<Props>(), {
-//   page: () => ({
-//     pageSize: 10,
-//     curPage: 1,
-//   }),
-//   data: () => [],
-//   selectionRows: () => [],
-// })
 const props = defineProps<Props>()
 const emits = defineEmits<Emits>()
 

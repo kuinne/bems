@@ -1,4 +1,4 @@
-export type Fn<T> = (...args: any[]) => T
+export type Fn<T, P = any[]> = (...args: P) => T
 
 export type Options<K, V = string> = Array<{
   value: K
