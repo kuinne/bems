@@ -1,19 +1,17 @@
 <template>
   <div class="app">
-    <!-- <router-view v-if="$route.meta.hiddenLayout" />
+    <router-view v-if="$route.meta.hiddenLayout" />
     <micro-layout :microPortal="microPortal" v-else>
       <router-view v-slot="{ Component }">
         <keep-alive :exclude="exclude">
           <component :is="Component" v-if="isRouterKeepAlive" :key="$route.path" />
         </keep-alive>
       </router-view>
-    </micro-layout> -->
-    <EnergyFee />
+    </micro-layout>
   </div>
 </template>
 
 <script setup lang="ts">
-import EnergyFee from './views/energyFee/index.vue'
 import { defineAsyncComponent, nextTick, provide, ref } from 'vue'
 import { getConfig } from '@/utils/config'
 const microLayout = defineAsyncComponent(() => import('@/common/micro-app/layout/index.vue'))
@@ -41,7 +39,8 @@ const exclude = ref<any[]>([])
 
 // 刷新路由
 const reload = (name: any) => {
-  exclude.value.push(name)
+  // exclude.value.push(name)
+  exclude.value.push('energyFee')
   isRouterKeepAlive.value = false
   nextTick(() => {
     isRouterKeepAlive.value = true

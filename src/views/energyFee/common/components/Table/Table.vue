@@ -17,7 +17,7 @@
           @size-change="handlePageSizeChange"
           @current-page-change="handleCurrentPageChange"
           v-model:selection-rows="selectionRows"
-          v-bind="props.dasTableProps || {}"
+          v-bind="$attrs"
         >
           <Columns />
           <template #pagination-left>
@@ -108,10 +108,12 @@ const Columns = () => {
 
 const handlePageSizeChange = (pageSize: number) => {
   page.value.pageSize = pageSize
+  emits('pageSizeChange', pageSize)
 }
 
 const handleCurrentPageChange = (curPage: number) => {
   page.value.curPage = curPage
+  emits('currentPageChange', curPage)
 }
 
 const clearSelection = () => {

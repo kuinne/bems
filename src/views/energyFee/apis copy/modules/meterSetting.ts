@@ -42,78 +42,20 @@ export const exportMeterSetting = (params: { taskId: string }) => {
 
 /** 表计设置-能源tree */
 export const getMeterSettingTree = () => {
-  // return service
-  //   .get('meter-billing/tree')()
-  //   .run({
-  //     ...baseParams,
-  //   })
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve([
-        null,
-        [
-          {
-            id: '1',
-            name: '1',
-            count: 11,
-            children: [
-              {
-                id: '1-1',
-                name: '1-1',
-                count: 11,
-              },
-            ],
-          },
-          {
-            id: '2',
-            name: '2',
-            count: 22,
-            children: [
-              {
-                id: '2-1',
-                name: '2-1',
-                count: 22,
-              },
-            ],
-          },
-        ],
-      ])
-    }, 2000)
-  })
+  return service
+    .get('meter-billing/tree')()
+    .run({
+      ...baseParams,
+    })
 }
 
 /** 表计设置-列表 */
-export const getMeterSettingList = (params: { pageIndex: number; pageSize: number; energyBillingSettingId: string; meterType: any; search: string }) => {
-  // return service
-  //   .post(`meter-billing/page?projectId=${baseParams.projectId}`)()
-  //   .run({
-  //     ...params,
-  //   })
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve([
-        null,
-        [
-          {
-            id: '0',
-            meterCode: '1122',
-            meterName: 'ss',
-            energyTypeName: '2222',
-            meterTypeName: '1',
-            status: 0,
-          },
-          {
-            id: '1',
-            meterCode: '444',
-            meterName: '2444',
-            energyTypeName: '222',
-            meterTypeName: '1',
-            status: 0,
-          },
-        ],
-      ])
-    }, 1500)
-  })
+export const getMeterSettingList = (params: { pageIndex: number; pageSize: number; energyBillingSettingId: string; meterType?: string; search?: string }) => {
+  return service
+    .post(`meter-billing/page?projectId=${baseParams.projectId}`)()
+    .run({
+      ...params,
+    })
 }
 
 /** 表计设置-删除 */

@@ -21,6 +21,8 @@ export type Emits = {
     },
   )
   ($event: 'update:selectionRows', selectionRows: any[]): void
+  ($event: 'pageSizeChange', val: number): void
+  ($event: 'currentPageChange', val: number): void
 }
 
 export type Props = {
@@ -32,9 +34,8 @@ export type Props = {
   }
   selectionRows: any[]
   total: number
-  loading: boolean
+  loading?: boolean
   actions?: TableAction[]
-  dasTableProps?: any
 }
 
 export type TablePageType = {

@@ -55,6 +55,8 @@ const defaultSplit = computed(() => {
   box-sizing: border-box;
   padding: 0 10px 10px 10px;
   .content {
+    display: flex;
+    flex-direction: column;
     .tab-wrapper {
       background: #fff;
       margin-bottom: 10px;
@@ -79,7 +81,6 @@ const defaultSplit = computed(() => {
     width: 100%;
     height: 100%;
     box-sizing: border-box;
-    padding-top: 10px;
     .tree-content {
       width: 100%;
       height: 100%;
@@ -92,6 +93,9 @@ const defaultSplit = computed(() => {
         z-index: 0;
       }
     }
+  }
+  :deep(.ant-spin) {
+    height: 100% !important;
   }
 }
 </style>

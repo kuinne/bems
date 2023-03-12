@@ -19,6 +19,7 @@ export type Props = {
   type: 'edit' | 'view' | 'add'
   title: string
   formItems: FormItems
+  loading?: boolean
 }
 
 export type Emits = {

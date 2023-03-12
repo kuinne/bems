@@ -14,8 +14,5 @@ const baseParams = {
 /** 获取所有能源类型 */
 
 export const getAllEnergyType = () => {
-  // return service.get(`get-all?projectId=${baseParams.projectId}`)().run()
-  console.log('🐷🐷🐷🐷🐷🐷🐷🐷🐷🐷🐷🐷【getAllEnergyType】')
-
-  return Promise.resolve([null, []])
+  return service.get(`get-all?projectId=${baseParams.projectId}`)().run()
 }
